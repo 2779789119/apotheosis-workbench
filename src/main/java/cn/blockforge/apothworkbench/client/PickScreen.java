@@ -1,5 +1,6 @@
 package cn.blockforge.apothworkbench.client;
 
+import cn.blockforge.apothworkbench.WbLang;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -76,7 +77,7 @@ public class PickScreen extends Screen {
         px = (width - pw) / 2;
         py = (height - ph) / 2;
 
-        search = new EditBox(font, px + 8, py + 24, pw - 16, 16, Component.literal("搜索"));
+        search = new EditBox(font, px + 8, py + 24, pw - 16, 16, WbLang.tr("apoth_workbench.hint.search"));
         search.setMaxLength(60);
         search.setValue(query);
         search.setResponder(s -> {
@@ -89,11 +90,11 @@ public class PickScreen extends Screen {
 
         if (multi) {
             int half = (pw - 16) / 2 - 2;
-            addRenderableWidget(Button.builder(Component.literal("确定"), b -> {
+            addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.confirm"), b -> {
                 onConfirm.accept(new ArrayList<>(selected));
                 minecraft.setScreen(parent);
             }).bounds(px + 8, py + ph - 24, half, 16).build());
-            addRenderableWidget(Button.builder(Component.literal("取消"), b -> minecraft.setScreen(parent))
+            addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.cancel"), b -> minecraft.setScreen(parent))
                     .bounds(px + 8 + half + 4, py + ph - 24, half, 16).build());
         }
     }
@@ -159,8 +160,9 @@ public class PickScreen extends Screen {
         g.fill(px, py, px + pw, py + 1, C_BORDER);
         g.fill(px, py + ph - 1, px + pw, py + ph, C_BORDER);
 
-        String title = heading + "（" + shown.size() + " 项"
-                + (multi ? " · 已选 " + selected.size() : "") + "）";
+        String title = multi
+                ? WbLang.s("apoth_workbench.pick.title_multi", heading, shown.size(), selected.size())
+                : WbLang.s("apoth_workbench.pick.title", heading, shown.size());
         g.drawString(font, title, px + 8, py + 10, C_ACCENT, false);
 
         int top = listTop();
@@ -215,12 +217,13 @@ public class PickScreen extends Screen {
         }
 
         if (shown.isEmpty()) {
-            g.drawString(font, "没有匹配项", px + pw / 2 - font.width("没有匹配项") / 2, top + h / 2, C_MUTED, false);
+            String none = WbLang.s("apoth_workbench.pick.empty");
+            g.drawString(font, none, px + pw / 2 - font.width(none) / 2, top + h / 2, C_MUTED, false);
         }
 
         super.render(g, mouseX, mouseY, partial);
         if (!multi) {
-            g.drawString(font, "§8点一项即可选中 · Esc 返回", px + 8, py + ph - 10, C_MUTED, false);
+            g.drawString(font, WbLang.s("apoth_workbench.pick.hint"), px + 8, py + ph - 10, C_MUTED, false);
         }
     }
 

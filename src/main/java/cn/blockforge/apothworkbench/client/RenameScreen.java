@@ -1,5 +1,6 @@
 package cn.blockforge.apothworkbench.client;
 
+import cn.blockforge.apothworkbench.WbLang;
 import cn.blockforge.apothworkbench.net.EditPacket;
 import cn.blockforge.apothworkbench.net.WorkbenchNetwork;
 import com.google.gson.JsonObject;
@@ -29,7 +30,7 @@ public class RenameScreen extends Screen {
     private java.util.List<Component> tip;
 
     public RenameScreen(Screen parent, String affixId, String currentName) {
-        super(Component.literal("给词条起名"));
+        super(WbLang.tr("apoth_workbench.rename.title"));
         this.parent = parent;
         this.affixId = affixId;
         this.initial = currentName == null ? "" : currentName;
@@ -41,15 +42,15 @@ public class RenameScreen extends Screen {
         px = (width - pw) / 2;
         py = (height - ph) / 2;
 
-        box = new EditBox(font, px + 8, py + 44, pw - 16, 16, Component.literal("名称"));
+        box = new EditBox(font, px + 8, py + 44, pw - 16, 16, WbLang.tr("apoth_workbench.rename.hint"));
         box.setMaxLength(40);
         box.setValue(initial);
         addRenderableWidget(box);
         setInitialFocus(box);
 
-        addRenderableWidget(Button.builder(Component.literal("保存"), b -> save())
+        addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.save_short"), b -> save())
                 .bounds(px + 8, py + ph - 24, (pw - 16) / 2 - 2, 16).build());
-        addRenderableWidget(Button.builder(Component.literal("取消"), b -> minecraft.setScreen(parent))
+        addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.cancel"), b -> minecraft.setScreen(parent))
                 .bounds(px + 8 + (pw - 16) / 2 + 2, py + ph - 24, (pw - 16) / 2 - 2, 16).build());
     }
 
@@ -71,19 +72,19 @@ public class RenameScreen extends Screen {
         g.fill(px, py, px + pw, py + 1, 0xFF33334A);
         g.fill(px, py + ph - 1, px + pw, py + ph, 0xFF33334A);
 
-        g.drawString(font, "给词条起名", px + 8, py + 8, 0xFF9B6CFF, false);
+        g.drawString(font, WbLang.s("apoth_workbench.rename.title"), px + 8, py + 8, 0xFF9B6CFF, false);
         g.drawString(font, clip("§8" + affixId, pw - 16), px + 8, py + 22, 0xFF8C8CA0, false);
-        g.drawString(font, "物品上会直接显示这个名字", px + 8, py + 34, 0xFF8C8CA0, false);
+        g.drawString(font, WbLang.s("apoth_workbench.rename.subtitle"), px + 8, py + 34, 0xFF8C8CA0, false);
 
         super.render(g, mouseX, mouseY, partial);
 
-        String hint = "留空 = 恢复原来（或显示 affix.<ID>）";
+        String hint = WbLang.s("apoth_workbench.rename.empty_hint");
         g.drawString(font, clip(hint, pw - 16), px + 8, py + 64, 0xFF8C8CA0, false);
         if (mouseX >= px + 8 && mouseX < px + pw - 8 && mouseY >= py + 62 && mouseY < py + 74) {
             tip = java.util.List.of(
-                    Component.literal("§f名字存在存档的工作台状态里"),
-                    Component.literal("§7会注入客户端语言表，所以物品 tooltip 也生效"),
-                    Component.literal("§8资源重载（F3+T）后会自动重新注入"));
+                    Component.literal(WbLang.s("apoth_workbench.rename.tip.1")),
+                    Component.literal(WbLang.s("apoth_workbench.rename.tip.2")),
+                    Component.literal(WbLang.s("apoth_workbench.rename.tip.3")));
         }
         if (tip != null) {
             g.renderComponentTooltip(font, tip, mouseX, mouseY);

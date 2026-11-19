@@ -1,6 +1,7 @@
 package cn.blockforge.apothworkbench.data;
 
 import cn.blockforge.apothworkbench.WB;
+import cn.blockforge.apothworkbench.WbLang;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
@@ -97,7 +98,7 @@ public final class AffixEntry {
     public String summary() {
         JsonObject p = payload();
         if (p == null) {
-            return "（无数据）";
+            return WbLang.s("entry.no_data");
         }
         String t = typeShort();
         try {
@@ -108,7 +109,7 @@ public final class AffixEntry {
                 return p.get("mob_effect").getAsString() + " · " + cnTarget(str(p, "target", "HURT_SELF"));
             }
             if ("damage_reduction".equals(t)) {
-                return "伤害减免";
+                return WbLang.s("entry.damage_reduction");
             }
         } catch (Exception ignored) {
             // 数据不规范时不要炸界面
@@ -160,7 +161,7 @@ public final class AffixEntry {
             } else if (v.isJsonPrimitive()) {
                 sb.append(v.getAsString());
             } else if (v.isJsonObject()) {
-                sb.append(v.getAsJsonObject().size()).append(" 项");
+                sb.append(WbLang.s("entry.items", v.getAsJsonObject().size()));
             } else {
                 sb.append(v);
             }
@@ -176,29 +177,29 @@ public final class AffixEntry {
 
     private static String cnField(String key) {
         return switch (key) {
-            case "duration" -> "持续(刻)";
-            case "amplifier" -> "等级";
-            case "cooldown" -> "冷却(刻)";
-            case "min" -> "最小";
-            case "steps" -> "步数";
-            case "step" -> "每步";
+            case "duration" -> WbLang.s("entry.field.duration");
+            case "amplifier" -> WbLang.s("entry.field.amplifier");
+            case "cooldown" -> WbLang.s("entry.field.cooldown");
+            case "min" -> WbLang.s("entry.field.min");
+            case "steps" -> WbLang.s("entry.field.steps");
+            case "step" -> WbLang.s("entry.field.step");
             default -> key;
         };
     }
 
     private static String cnOperation(String op) {
         return switch (op) {
-            case "ADDITION" -> "加算";
-            case "MULTIPLY_BASE" -> "乘算·基础";
-            case "MULTIPLY_TOTAL" -> "乘算·总计";
+            case "ADDITION" -> WbLang.s("entry.op.addition");
+            case "MULTIPLY_BASE" -> WbLang.s("entry.op.multiply_base");
+            case "MULTIPLY_TOTAL" -> WbLang.s("entry.op.multiply_total");
             default -> op;
         };
     }
 
     private static String cnTarget(String target) {
         return switch (target) {
-            case "HURT_SELF" -> "自己受伤时";
-            case "HURT_ATTACKER" -> "攻击命中时";
+            case "HURT_SELF" -> WbLang.s("entry.target.hurt_self");
+            case "HURT_ATTACKER" -> WbLang.s("entry.target.hurt_attacker");
             default -> target;
         };
     }

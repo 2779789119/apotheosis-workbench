@@ -1,6 +1,7 @@
 package cn.blockforge.apothworkbench.net;
 
 import cn.blockforge.apothworkbench.WB;
+import cn.blockforge.apothworkbench.WbLang;
 import cn.blockforge.apothworkbench.data.WorkbenchService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -76,7 +77,7 @@ public class EditPacket {
             return;
         }
         if (!player.hasPermissions(2)) {
-            player.sendSystemMessage(Component.literal("§c[工作台] 你没有权限使用词条工作台"));
+            player.sendSystemMessage(WbLang.err("msg.no_permission"));
             return;
         }
         var server = player.getServer();
@@ -91,7 +92,7 @@ public class EditPacket {
         }
 
         WorkbenchService svc = WorkbenchService.get(server);
-        String err;
+        Component err;
         SnapshotPacket snapshot;
         synchronized (svc) {
             // 两种"取数据"的请求不需要回快照
@@ -109,7 +110,7 @@ public class EditPacket {
                 err = apply(svc, p);
             } catch (Exception ex) {
                 WB.LOGGER.error("工作台编辑失败", ex);
-                err = "操作失败：" + ex.getMessage();
+                err = WbLang.err("msg.action_failed", String.valueOf(ex.getMessage()));
             }
             // 把改动立即落盘（不改游戏内数据包），避免中途关服丢失
             if (action != A_SAVE && action != A_REFRESH && action != A_EXPORT && action != A_EXPORT_ALL) {
@@ -118,15 +119,13 @@ public class EditPacket {
             snapshot = SnapshotPacket.of(svc, false);
         }
 
-        if (err != null && err.startsWith("\u0000")) {
-            player.sendSystemMessage(Component.literal("§a[工作台] " + err.substring(1)));
-        } else if (err != null && !err.isEmpty()) {
-            player.sendSystemMessage(Component.literal("§c[工作台] " + err));
+        if (err != null) {
+            player.sendSystemMessage(err);
         }
         WorkbenchNetwork.sendTo(player, snapshot);
     }
 
-    private String apply(WorkbenchService svc, JsonObject p) {
+    private Component apply(WorkbenchService svc, JsonObject p) {
         switch (action) {
             case A_SET_STATUS:
                 return svc.setStatus(svc.entry(id), (byte) (p.has("status") ? p.get("status").getAsInt() : 0));
@@ -142,17 +141,15 @@ public class EditPacket {
                 return svc.revert(svc.entry(id));
             case A_CREATE:
                 return svc.create(p);
-            case A_SAVE: {
-                String msg = svc.saveAndReload();
-                return "\u0000" + msg; // 以特殊前缀标记为普通提示
-            }
+            case A_SAVE:
+                return svc.saveAndReload();
             case A_REFRESH:
                 svc.reloadFromDisk();
                 return null;
             case A_EXPORT:
-                return "\u0000" + svc.exportKubeJs();
+                return svc.exportKubeJs();
             case A_EXPORT_ALL:
-                return "\u0000" + svc.exportKubeJs(true);
+                return svc.exportKubeJs(true);
             case A_SET_CATS: {
                 List<String> cats = new ArrayList<>();
                 if (p.has("cats") && p.get("cats").isJsonArray()) {
@@ -171,20 +168,19 @@ public class EditPacket {
                 }
                 String op = p.has("op") ? p.get("op").getAsString() : "";
                 String rarity = p.has("rarity") ? p.get("rarity").getAsString() : "";
-                String msg = svc.batch(ids, op, rarity);
-                return msg.startsWith("批量") ? "\u0000" + msg : msg;
+                return svc.batch(ids, op, rarity);
             }
             case A_SET_NAME:
                 return svc.setName(svc.entry(id), p.has("name") ? p.get("name").getAsString() : "");
             case A_SET_JSON: {
                 JsonObject obj = p.has("json") && p.get("json").isJsonObject() ? p.getAsJsonObject("json") : null;
                 if (obj == null) {
-                    return "粘贴的内容不是合法的 JSON 对象";
+                    return WbLang.err("msg.clipboard_not_object");
                 }
                 return svc.setJson(svc.entry(id), obj);
             }
             default:
-                return "未知操作";
+                return WbLang.err("msg.unknown_action");
         }
     }
 }

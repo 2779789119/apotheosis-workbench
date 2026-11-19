@@ -37,7 +37,7 @@ public final class WB {
     public static JsonObject parseObject(String s) {
         JsonElement e = JsonParser.parseString(s);
         if (e == null || !e.isJsonObject()) {
-            throw new IllegalArgumentException("不是合法的 JSON 对象");
+            throw new IllegalArgumentException(WbLang.s("msg.not_json_object"));
         }
         return e.getAsJsonObject();
     }
@@ -63,9 +63,9 @@ public final class WB {
 
     public static String statusName(byte status) {
         return switch (status) {
-            case ST_DISABLED -> "已禁用";
-            case ST_DELETED -> "已删除";
-            default -> "启用中";
+            case ST_DISABLED -> WbLang.s("apoth_workbench.status.disabled");
+            case ST_DELETED -> WbLang.s("apoth_workbench.status.deleted");
+            default -> WbLang.s("apoth_workbench.status.active");
         };
     }
 }

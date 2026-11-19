@@ -1,10 +1,12 @@
 package cn.blockforge.apothworkbench.data;
 
 import cn.blockforge.apothworkbench.WB;
+import cn.blockforge.apothworkbench.WbLang;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -269,9 +271,9 @@ public final class WorkbenchService {
         }
     }
 
-    public String setStatus(AffixEntry e, byte status) {
+    public Component setStatus(AffixEntry e, byte status) {
         if (e == null) {
-            return "找不到该词条";
+            return WbLang.err("msg.affix_not_found");
         }
         if (e.custom && status == WB.ST_DELETED) {
             entries.remove(e.id.toString());
@@ -290,14 +292,14 @@ public final class WorkbenchService {
         return null;
     }
 
-    public String toggleRarity(AffixEntry e, String rarityKey, boolean on) {
+    public Component toggleRarity(AffixEntry e, String rarityKey, boolean on) {
         if (e == null) {
-            return "找不到该词条";
+            return WbLang.err("msg.affix_not_found");
         }
         ensureEditable(e);
         JsonObject values = e.values();
         if (values == null) {
-            return "该词条没有 values 字段，不受品阶限制";
+            return WbLang.err("msg.no_values_field");
         }
         if (on) {
             if (values.has(rarityKey)) {
@@ -322,7 +324,7 @@ public final class WorkbenchService {
         }
         if (values.size() == 0) {
             normalize(e);
-            return "注意：该词条已不属于任何品阶，将不会再出现在战利品中";
+            return WbLang.warn("msg.no_rarity_left");
         }
         normalize(e);
         return null;
@@ -353,24 +355,24 @@ public final class WorkbenchService {
         return o;
     }
 
-    public String setValues(AffixEntry e, String rarityKey, double min, double steps, double step) {
+    public Component setValues(AffixEntry e, String rarityKey, double min, double steps, double step) {
         if (e == null) {
-            return "找不到该词条";
+            return WbLang.err("msg.affix_not_found");
         }
-        String bad = checkStepInput(min, steps, step);
+        Component bad = checkStepInput(min, steps, step);
         if (bad != null) {
             return bad;
         }
         ensureEditable(e);
         JsonObject values = e.values();
         if (values == null || !values.has(rarityKey)) {
-            return "该品阶未启用";
+            return WbLang.err("msg.rarity_not_enabled");
         }
         JsonElement old = values.get(rarityKey);
         if (old.isJsonObject()) {
             JsonObject o = old.getAsJsonObject();
             if (!(o.has("min") && o.has("steps") && o.has("step"))) {
-                return "该品阶是复合数值结构（如药水效果），请直接编辑词条 JSON";
+                return WbLang.err("msg.complex_block");
             }
         }
         touch(e);
@@ -379,18 +381,18 @@ public final class WorkbenchService {
         return null;
     }
 
-    public String syncValues(AffixEntry e, double min, double steps, double step) {
+    public Component syncValues(AffixEntry e, double min, double steps, double step) {
         if (e == null) {
-            return "找不到该词条";
+            return WbLang.err("msg.affix_not_found");
         }
-        String bad = checkStepInput(min, steps, step);
+        Component bad = checkStepInput(min, steps, step);
         if (bad != null) {
             return bad;
         }
         ensureEditable(e);
         JsonObject values = e.values();
         if (values == null || values.size() == 0) {
-            return "该词条没有可用品阶";
+            return WbLang.err("msg.no_usable_rarity");
         }
         List<String> keys = new ArrayList<>(values.keySet());
         int applied = 0;
@@ -407,16 +409,16 @@ public final class WorkbenchService {
             applied++;
         }
         normalize(e);
-        return applied == 0 ? "没有可同步的数值块（该词条为复合结构）" : null;
+        return applied == 0 ? WbLang.err("msg.nothing_to_sync") : null;
     }
 
-    public String revert(AffixEntry e) {
+    public Component revert(AffixEntry e) {
         if (e == null) {
-            return "找不到该词条";
+            return WbLang.err("msg.affix_not_found");
         }
         if (e.custom) {
             entries.remove(e.id.toString());
-            return "已删除自定义词条";
+            return WbLang.ok("msg.custom_deleted");
         }
         e.current = WB.copy(e.original);
         e.status = WB.ST_ACTIVE;
@@ -434,19 +436,19 @@ public final class WorkbenchService {
     }
 
     /** 用粘贴进来的 JSON 覆盖整条词条（先校验副本，不合格就不动原数据） */
-    public String setJson(AffixEntry e, JsonObject json) {
+    public Component setJson(AffixEntry e, JsonObject json) {
         if (e == null) {
-            return "找不到该词条";
+            return WbLang.err("msg.affix_not_found");
         }
         if (json == null || !json.has("type")) {
-            return "JSON 里缺少 type 字段，无法识别词条类型";
+            return WbLang.err("msg.json_missing_type");
         }
         AffixEntry probe = new AffixEntry(e.id);
         probe.custom = true; // 让 validate 走 payload()=current
         probe.current = json.deepCopy();
-        List<String> errs = validate(probe);
+        List<Component> errs = validate(probe);
         if (!errs.isEmpty()) {
-            return "校验没通过，未应用：" + String.join("；", errs);
+            return WbLang.err("msg.validate_failed", join(errs));
         }
         ensureEditable(e);
         e.current = json.deepCopy();
@@ -456,13 +458,13 @@ public final class WorkbenchService {
     }
 
     /** 设置自定义显示名（空 = 清除，回到语言文件里的原名字） */
-    public String setName(AffixEntry e, String name) {
+    public Component setName(AffixEntry e, String name) {
         if (e == null) {
-            return "找不到该词条";
+            return WbLang.err("msg.affix_not_found");
         }
         String trimmed = name == null ? "" : name.trim();
         if (trimmed.length() > 40) {
-            return "名字太长了，最多 40 个字";
+            return WbLang.err("msg.name_too_long");
         }
         e.name = trimmed.isEmpty() ? null : trimmed;
         e.touched = true;
@@ -475,17 +477,17 @@ public final class WorkbenchService {
     }
 
     /** 修改适用部位（types）；词条类型本身没有 types 字段时不给改 */
-    public String setCategories(AffixEntry e, List<String> cats) {
+    public Component setCategories(AffixEntry e, List<String> cats) {
         if (e == null) {
-            return "找不到该词条";
+            return WbLang.err("msg.affix_not_found");
         }
         ensureEditable(e);
         JsonObject p = e.payload();
         if (p == null) {
-            return "该词条没有数据";
+            return WbLang.err("msg.no_data");
         }
         if (!p.has("types")) {
-            return "该词条类型没有部位字段，无法修改";
+            return WbLang.err("msg.no_type_field");
         }
         JsonArray arr = new JsonArray();
         for (String c : cats) {
@@ -499,9 +501,9 @@ public final class WorkbenchService {
         AffixEntry probe = new AffixEntry(e.id);
         probe.custom = true;
         probe.current = probeJson;
-        List<String> errs = validate(probe);
+        List<Component> errs = validate(probe);
         if (!errs.isEmpty()) {
-            return "未修改：" + String.join("；", errs);
+            return WbLang.err("msg.not_modified", join(errs));
         }
         touch(e);
         p.add("types", arr);
@@ -510,12 +512,12 @@ public final class WorkbenchService {
     }
 
     /** 批量操作：enable / disable / delete / rarity_on / rarity_off */
-    public String batch(List<String> ids, String op, String rarity) {
+    public Component batch(List<String> ids, String op, String rarity) {
         if (ids == null || ids.isEmpty()) {
-            return "没有选中词条";
+            return WbLang.err("msg.nothing_selected");
         }
         if (("rarity_on".equals(op) || "rarity_off".equals(op)) && (rarity == null || rarity.isBlank())) {
-            return "请先选择要操作的品阶";
+            return WbLang.err("msg.pick_rarity_first");
         }
         int ok = 0;
         int skip = 0;
@@ -546,20 +548,22 @@ public final class WorkbenchService {
                     toggleRarity(e, rarity, false);
                 }
                 default -> {
-                    return "未知批量操作：" + op;
+                    return WbLang.err("msg.batch_unknown", op);
                 }
             }
             ok++;
         }
-        String action = switch (op) {
-            case "enable" -> "启用";
-            case "disable" -> "禁用";
-            case "delete" -> "删除";
-            case "rarity_on" -> "加入品阶 " + rarity + "（" + ids.size() + " 条）";
-            case "rarity_off" -> "移出品阶 " + rarity + "（" + ids.size() + " 条）";
-            default -> op;
+        MutableComponent action = switch (op) {
+            case "enable" -> WbLang.tr("batch.op.enable");
+            case "disable" -> WbLang.tr("batch.op.disable");
+            case "delete" -> WbLang.tr("batch.op.delete");
+            case "rarity_on" -> WbLang.tr("batch.op.rarity_on", rarity);
+            case "rarity_off" -> WbLang.tr("batch.op.rarity_off", rarity);
+            default -> Component.literal(op);
         };
-        return "批量" + action + "完成：成功 " + ok + " 条" + (skip > 0 ? "，跳过 " + skip + " 条" : "");
+        return skip > 0
+                ? WbLang.ok("msg.batch_done_skip", action, ok, skip)
+                : WbLang.ok("msg.batch_done", action, ok);
     }
 
     // ---------------------------------------------------------------- 校验
@@ -568,15 +572,15 @@ public final class WorkbenchService {
      * 校验一条词条的数据，返回错误列表（空 = 通过）。
      * 目的是拦住"神化会静默跳过、但界面上看不出来"的坏数据。
      */
-    public List<String> validate(AffixEntry e) {
-        List<String> errs = new ArrayList<>();
+    public List<Component> validate(AffixEntry e) {
+        List<Component> errs = new ArrayList<>();
         JsonObject p = e.payload();
         if (p == null) {
-            errs.add("没有数据");
+            errs.add(WbLang.tr("validate.no_data"));
             return errs;
         }
         if (!p.has("type") || !p.get("type").isJsonPrimitive()) {
-            errs.add("缺少 type 字段");
+            errs.add(WbLang.tr("validate.missing_type"));
             return errs;
         }
         String shortType = e.typeShort();
@@ -584,38 +588,38 @@ public final class WorkbenchService {
         boolean needTypes = "attribute".equals(shortType) || "mob_effect".equals(shortType);
         if (!p.has("types")) {
             if (needTypes) {
-                errs.add("该类型必须写 types（部位），空数组表示所有部位");
+                errs.add(WbLang.tr("validate.types_required"));
             }
         } else if (!p.get("types").isJsonArray()) {
-            errs.add("types 必须是数组");
+            errs.add(WbLang.tr("validate.types_not_array"));
         } else {
             for (com.google.gson.JsonElement c : p.getAsJsonArray("types")) {
                 String s = c.isJsonPrimitive() ? c.getAsString() : "";
                 Boolean ok = AffixDescriber.isValidCategory(s);
                 if (ok != null && !ok) {
-                    errs.add("部位 " + s + " 不是神化支持的部位");
+                    errs.add(WbLang.tr("validate.bad_category", s));
                 }
             }
         }
 
         if ("attribute".equals(shortType)) {
             if (!p.has("attribute")) {
-                errs.add("缺少 attribute");
+                errs.add(WbLang.tr("validate.missing_attribute"));
             } else {
                 ResourceLocation aid = ResourceLocation.tryParse(p.get("attribute").getAsString());
                 if (aid == null || !ForgeRegistries.ATTRIBUTES.containsKey(aid)) {
-                    errs.add("属性 " + p.get("attribute").getAsString() + " 不存在");
+                    errs.add(WbLang.tr("validate.attribute_missing", p.get("attribute").getAsString()));
                 }
             }
             String op = p.has("operation") && p.get("operation").isJsonPrimitive() ? p.get("operation").getAsString() : "";
             if (!List.of("ADDITION", "MULTIPLY_BASE", "MULTIPLY_TOTAL").contains(op)) {
-                errs.add("运算方式 " + op + " 不合法");
+                errs.add(WbLang.tr("validate.bad_operation", op));
             }
         } else if ("mob_effect".equals(shortType)) {
             String mid = p.has("mob_effect") && p.get("mob_effect").isJsonPrimitive() ? p.get("mob_effect").getAsString() : "";
             ResourceLocation id = ResourceLocation.tryParse(mid);
             if (id == null || !ForgeRegistries.MOB_EFFECTS.containsKey(id)) {
-                errs.add("效果 " + mid + " 不存在");
+                errs.add(WbLang.tr("validate.effect_missing", mid));
             }
         }
 
@@ -623,7 +627,7 @@ public final class WorkbenchService {
         if (values != null) {
             for (String key : values.keySet()) {
                 if (rarityByKey(key) == null) {
-                    errs.add("品阶 " + key + " 不存在");
+                    errs.add(WbLang.tr("validate.rarity_missing", key));
                     continue;
                 }
                 JsonElement blk = values.get(key);
@@ -636,23 +640,23 @@ public final class WorkbenchService {
     }
 
     /** 界面输入的三元组先做一次检查，避免把神化解析不了的数据写进去 */
-    private String checkStepInput(double min, double steps, double step) {
+    private Component checkStepInput(double min, double steps, double step) {
         if (!Double.isFinite(min) || !Double.isFinite(steps) || !Double.isFinite(step)) {
-            return "数值里面有不合法数字";
+            return WbLang.err("msg.bad_number");
         }
         if (steps < 1) {
-            return "步数必须 ≥ 1（神化要求大于 0，填 0 会让整条词条加载失败）";
+            return WbLang.err("msg.steps_min");
         }
         if (steps != Math.rint(steps)) {
-            return "步数必须是整数";
+            return WbLang.err("msg.steps_int");
         }
         if (step < 0) {
-            return "每步不能是负数";
+            return WbLang.err("msg.step_negative");
         }
         return null;
     }
 
-    private void checkStep(JsonObject o, List<String> errs, String where) {
+    private void checkStep(JsonObject o, List<Component> errs, String where) {
         if (!(o.has("min") && o.has("steps") && o.has("step"))) {
             return;
         }
@@ -661,41 +665,53 @@ public final class WorkbenchService {
             double steps = o.get("steps").getAsDouble();
             double step = o.get("step").getAsDouble();
             if (!Double.isFinite(min) || !Double.isFinite(steps) || !Double.isFinite(step)) {
-                errs.add(where + " 的数值不是有效数字");
+                errs.add(WbLang.tr("validate.step_number", where));
             } else if (steps < 1) {
-                errs.add(where + " 的步数必须 ≥ 1（神化要求大于 0，填 0 会让词条加载失败）");
+                errs.add(WbLang.tr("validate.step_min", where));
             } else if (step < 0) {
-                errs.add(where + " 的每步不能是负数");
+                errs.add(WbLang.tr("validate.step_negative", where));
             } else if (steps != Math.rint(steps)) {
-                errs.add(where + " 的步数必须是整数");
+                errs.add(WbLang.tr("validate.step_int", where));
             }
         } catch (Exception ex) {
-            errs.add(where + " 的数值格式不对");
+            errs.add(WbLang.tr("validate.step_format", where));
         }
     }
 
-    /** 校验所有"我们生成过"的词条，返回可读错误（最多 5 条） */
-    public String validateTouched() {
-        List<String> all = new ArrayList<>();
+    /** 拼接多条错误，分隔符也走语言表 */
+    private static Component join(List<Component> parts) {
+        MutableComponent out = Component.empty();
+        for (int i = 0; i < parts.size(); i++) {
+            if (i > 0) {
+                out.append(WbLang.tr("text.sep"));
+            }
+            out.append(parts.get(i));
+        }
+        return out;
+    }
+
+    /** 校验所有"我们生成过"的词条，返回可读错误（最多 3 条） */
+    public Component validateTouched() {
+        List<Component> all = new ArrayList<>();
         for (AffixEntry e : entries.values()) {
             if (!e.touched) {
                 continue;
             }
-            for (String err : validate(e)) {
-                all.add(e.id + "：" + err);
+            for (Component err : validate(e)) {
+                all.add(WbLang.tr("validate.entry", e.id.toString(), err));
             }
         }
         if (all.isEmpty()) {
             return null;
         }
-        StringBuilder sb = new StringBuilder("保存被拦下，请先修正：");
+        MutableComponent out = WbLang.tr("validate.summary");
         for (int i = 0; i < Math.min(3, all.size()); i++) {
-            sb.append("【").append(all.get(i)).append("】");
+            out.append(WbLang.tr("validate.summary_item", all.get(i)));
         }
         if (all.size() > 3) {
-            sb.append(" 等共 ").append(all.size()).append(" 处问题");
+            out.append(WbLang.tr("validate.summary_more", all.size()));
         }
-        return sb.toString();
+        return out;
     }
 
     /** 重载后核对词条是否真的被神化注册了（没注册大概率是数据有问题） */
@@ -717,18 +733,18 @@ public final class WorkbenchService {
         if (failed.isEmpty() || server.getPlayerList() == null) {
             return;
         }
-        StringBuilder sb = new StringBuilder("§e[工作台] 有 " + failed.size() + " 条词条重载后没有注册成功（详见 latest.log）：");
+        MutableComponent msg = WbLang.tr("chat.warn", WbLang.tr("msg.load_failed", failed.size()));
         int i = 0;
         for (String id : failed) {
             if (i++ >= 3) {
-                sb.append(" 等");
+                msg.append(WbLang.tr("msg.load_failed_more"));
                 break;
             }
-            sb.append(" ").append(id);
+            msg.append(Component.literal(" " + id));
         }
         for (var p : server.getPlayerList().getPlayers()) {
             if (p.hasPermissions(2)) {
-                p.sendSystemMessage(Component.literal(sb.toString()));
+                p.sendSystemMessage(msg);
             }
         }
     }
@@ -739,31 +755,31 @@ public final class WorkbenchService {
 
     // ---------------------------------------------------------------- 新增词条
 
-    public String create(JsonObject payload) {
+    public Component create(JsonObject payload) {
         String idStr = payload.has("id") ? payload.get("id").getAsString() : "";
         ResourceLocation id = ResourceLocation.tryParse(idStr);
         if (id == null) {
-            return "词条 ID 不合法，格式应为 命名空间:路径（只能用小写字母、数字、_ - / .）";
+            return WbLang.err("msg.bad_id");
         }
         if (entries.containsKey(id.toString())) {
-            return "该 ID 已存在：" + id;
+            return WbLang.err("msg.id_exists", id.toString());
         }
         JsonObject json;
         boolean paste = payload.has("mode") && "paste".equals(payload.get("mode").getAsString());
         if (paste) {
             if (!payload.has("json") || !payload.get("json").isJsonObject()) {
-                return "粘贴的内容不是 JSON 对象";
+                return WbLang.err("msg.clipboard_not_object");
             }
             json = payload.getAsJsonObject("json").deepCopy();
         } else {
             try {
                 json = buildCreated(payload);
             } catch (Exception ex) {
-                return "生成词条失败: " + ex.getMessage();
+                return WbLang.err("msg.build_failed", String.valueOf(ex.getMessage()));
             }
         }
         if (json == null || !json.has("type")) {
-            return "生成的数据缺少 type 字段";
+            return WbLang.err("msg.built_no_type");
         }
         AffixEntry e = new AffixEntry(id);
         e.custom = true;
@@ -773,9 +789,9 @@ public final class WorkbenchService {
         e.touched = true;
         String name = payload.has("name") ? payload.get("name").getAsString().trim() : "";
         e.name = name.isEmpty() ? null : name;
-        List<String> errs = validate(e);
+        List<Component> errs = validate(e);
         if (!errs.isEmpty()) {
-            return "新建失败：" + String.join("；", errs);
+            return WbLang.err("msg.create_failed", join(errs));
         }
         entries.put(id.toString(), e);
         return null;
@@ -824,7 +840,7 @@ public final class WorkbenchService {
             String source = p.has("source") ? p.get("source").getAsString() : null;
             AffixEntry src = source == null ? null : entries.get(source);
             if (src == null || src.payload() == null) {
-                throw new IllegalArgumentException("模板词条不存在");
+                throw new IllegalArgumentException(WbLang.s("msg.template_missing"));
             }
             out = src.payload().deepCopy();
             JsonObject srcValues = src.values();
@@ -855,9 +871,9 @@ public final class WorkbenchService {
 
     // ---------------------------------------------------------------- 保存与重载
 
-    public synchronized String saveAndReload() {
+    public synchronized Component saveAndReload() {
         try {
-            String problems = validateTouched();
+            Component problems = validateTouched();
             if (problems != null) {
                 return problems;
             }
@@ -868,14 +884,13 @@ public final class WorkbenchService {
             if (server.isSameThread()) {
                 needsReload = false;
                 applyReload();
-                return written > 0 ? "已保存 " + written + " 条改动并重载数据包" : "工作台没有改动，已清理覆盖数据包并重载";
+                return written > 0 ? WbLang.ok("msg.saved", written) : WbLang.ok("msg.saved_none");
             }
             pendingReload = true;
-            return written > 0 ? "已保存 " + written + " 条改动；重载已排队（单人暂停时关掉界面就应用）"
-                    : "没有改动，已清理覆盖数据包（关掉界面后生效）";
+            return written > 0 ? WbLang.ok("msg.saved_pending", written) : WbLang.ok("msg.saved_none_pending");
         } catch (Exception ex) {
             WB.LOGGER.error("保存工作台失败", ex);
-            return "保存失败：" + ex.getMessage();
+            return WbLang.err("msg.save_failed", String.valueOf(ex.getMessage()));
         }
     }
 
@@ -1024,11 +1039,11 @@ public final class WorkbenchService {
      * 把当前改动导出成 KubeJS 脚本（ServerEvents.highPriorityData 注入数据包）。
      * 和覆盖数据包是两套等效做法，二选一。
      */
-    public synchronized String exportKubeJs() {
+    public synchronized Component exportKubeJs() {
         return exportKubeJs(false);
     }
 
-    public synchronized String exportKubeJs(boolean all) {
+    public synchronized Component exportKubeJs(boolean all) {
         List<AffixEntry> targets = new ArrayList<>();
         for (AffixEntry e : entries.values()) {
             if (all) {
@@ -1045,7 +1060,7 @@ public final class WorkbenchService {
             }
         }
         if (targets.isEmpty()) {
-            return all ? "没有词条可导出" : "没有可导出的改动：先在工作台里改词条，再来导出";
+            return all ? WbLang.err("msg.export_empty_all") : WbLang.err("msg.export_empty");
         }
 
         StringBuilder sb = new StringBuilder();
@@ -1089,11 +1104,10 @@ public final class WorkbenchService {
             Files.createDirectories(target.getParent());
             Files.writeString(target, sb.toString(), StandardCharsets.UTF_8);
             String shown = gameDir.relativize(target).toString().replace('\\', '/');
-            return "已导出 " + targets.size() + " 条改动 → " + shown
-                    + (hasKubeJs ? "（/reload 后由 KubeJS 注入）" : "（未检测到 kubejs 目录，放好后需自行拷进 kubejs/server_scripts）");
+            return WbLang.ok(hasKubeJs ? "msg.exported_kubejs" : "msg.exported_file", targets.size(), shown);
         } catch (Exception ex) {
             WB.LOGGER.error("导出 KubeJS 脚本失败", ex);
-            return "导出失败：" + ex.getMessage();
+            return WbLang.err("msg.export_failed", String.valueOf(ex.getMessage()));
         }
     }
 

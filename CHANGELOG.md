@@ -1,6 +1,22 @@
 # 更新日志
 
+## 1.4.0
+
+### 语言文件支持（界面英文）
+- 新增 `assets/apoth_workbench/lang/zh_cn.json` 与 `en_us.json`（各 451 条），界面文案不再硬编码
+- 所有按钮、筛选、详情、批量面板、悬浮提示、四个子界面全部走 `apoth_workbench.*` 翻译键，切换语言即时生效
+- 品阶 / 词条类型 / 部位名也进语言表（`rarity.*` / `type.*` / `cat.*`），仍优先用神化自己的 `rarity.*` 与 `text.apotheosis.category.*`，未命中才回退内置表
+- 服务端消息改为 `Component.translatable`：聊天提示按收信玩家的语言显示（不再是服务端语言）
+- 新增 `WbLang` 工具类（`tr` / `s` / `opt` / `ok` / `err` / `warn`，键名可省略 `apoth_workbench.` 前缀）
+- `WorkbenchService` 的错误/提示返回值由 `String` 改为 `Component`，`validate()` 返回 `List<Component>`，去掉了 `"\u0000"` 前缀约定
+- 导出的 KubeJS 脚本内的注释仍为中文（属于生成物，不参与本地化）
+
 ## 1.3.3
+
+### 发布准备
+- 依赖改为强制：没装神化 7.x / Placebo 8.x 时，加载界面直接提示缺哪个，不再"能进游戏但用不了"
+- 模组列表里补上图标和 credits
+- 仓库补 MIT LICENSE
 
 ### 部位名多级回退
 - 除了神化官方键，还会尝试 `curios.identifier.*` / `trinkets.slot.*`（`artifact_belt` 会拆成 `belt` 再试）

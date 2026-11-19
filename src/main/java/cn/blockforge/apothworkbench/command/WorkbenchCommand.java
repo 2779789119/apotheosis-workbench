@@ -1,5 +1,6 @@
 package cn.blockforge.apothworkbench.command;
 
+import cn.blockforge.apothworkbench.WbLang;
 import cn.blockforge.apothworkbench.data.WorkbenchService;
 import cn.blockforge.apothworkbench.net.SnapshotPacket;
 import cn.blockforge.apothworkbench.net.WorkbenchNetwork;
@@ -34,34 +35,34 @@ public final class WorkbenchCommand {
             WorkbenchService svc = WorkbenchService.get(source.getServer());
             int size = svc.list().size();
             if (size == 0) {
-                source.sendFailure(Component.literal("没有扫描到任何词条，请确认神化（Apotheosis）已安装并已加载数据包"));
+                source.sendFailure(WbLang.tr("msg.no_affixes"));
                 return 0;
             }
             WorkbenchNetwork.sendTo(player, SnapshotPacket.of(svc, true));
-            source.sendSuccess(() -> Component.literal("已打开神化工作台（" + size + " 条词条）"), false);
+            source.sendSuccess(() -> WbLang.tr("msg.opened", size), false);
             return 1;
         } catch (Exception ex) {
-            source.sendFailure(Component.literal("该命令只能由玩家执行"));
+            source.sendFailure(WbLang.tr("msg.players_only"));
             return 0;
         }
     }
 
     private static int save(CommandSourceStack source) {
         WorkbenchService svc = WorkbenchService.get(source.getServer());
-        String msg = svc.saveAndReload();
-        source.sendSuccess(() -> Component.literal(msg), true);
+        Component msg = svc.saveAndReload();
+        source.sendSuccess(() -> msg, true);
         return 1;
     }
 
     private static int refresh(CommandSourceStack source) {
         WorkbenchService.get(source.getServer()).reloadFromDisk();
-        source.sendSuccess(() -> Component.literal("已重新扫描词条数据"), false);
+        source.sendSuccess(() -> WbLang.tr("msg.refreshed"), false);
         return 1;
     }
 
     private static int export(CommandSourceStack source) {
-        String msg = WorkbenchService.get(source.getServer()).exportKubeJs();
-        source.sendSuccess(() -> Component.literal(msg), false);
+        Component msg = WorkbenchService.get(source.getServer()).exportKubeJs();
+        source.sendSuccess(() -> msg, false);
         return 1;
     }
 }

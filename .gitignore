@@ -17,6 +17,7 @@ bin/
 
 # 本地产物
 generated-images/
+release/
 .tools/
 .inspect/
 

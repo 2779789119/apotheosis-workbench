@@ -1,6 +1,7 @@
 package cn.blockforge.apothworkbench.client;
 
 import cn.blockforge.apothworkbench.WB;
+import cn.blockforge.apothworkbench.WbLang;
 import cn.blockforge.apothworkbench.data.RarityInfo;
 import cn.blockforge.apothworkbench.net.AffixDto;
 import cn.blockforge.apothworkbench.net.EditPacket;
@@ -131,7 +132,7 @@ public class WorkbenchScreen extends Screen {
     }
 
     public WorkbenchScreen(SnapshotPacket packet) {
-        super(Component.literal("神化工作台"));
+        super(WbLang.tr("apoth_workbench.title"));
         ACTIVE = this;
         apply(packet);
     }
@@ -191,25 +192,27 @@ public class WorkbenchScreen extends Screen {
 
         // 顶栏
         int bx = width - pad;
-        btnClose = addRenderableWidget(Button.builder(Component.literal("关闭"), b -> onClose())
+        btnClose = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.close"), b -> onClose())
                 .bounds(bx - 44, hy + 3, 44, 16).build());
         bx -= 48;
-        btnRefresh = addRenderableWidget(Button.builder(Component.literal("刷新"), b ->
+        btnRefresh = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.refresh"), b ->
                 WorkbenchNetwork.sendToServer(new EditPacket(EditPacket.A_REFRESH, "")))
                 .bounds(bx - 44, hy + 3, 44, 16).build());
         bx -= 48;
-        btnSave = addRenderableWidget(Button.builder(Component.literal("保存并重载"), b -> save())
+        btnSave = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.save"), b -> save())
                 .bounds(bx - 90, hy + 3, 90, 16).build());
         bx -= 94;
-        btnExport = addRenderableWidget(Button.builder(Component.literal("导出脚本"), b -> export())
+        btnExport = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.export"), b -> export())
                 .bounds(bx - 70, hy + 3, 70, 16).build());
 
         // 左栏筛选
         filterButtons.clear();
-        String[][] filters = {{"all", "全部词条"}, {"mod", "已修改"}, {"disabled", "已禁用"}, {"deleted", "已删除"}, {"custom", "自定义"}};
+        String[][] filters = {{"all", "apoth_workbench.filter.all"}, {"mod", "apoth_workbench.filter.modified"},
+                {"disabled", "apoth_workbench.filter.disabled"}, {"deleted", "apoth_workbench.filter.deleted"},
+                {"custom", "apoth_workbench.filter.custom"}};
         for (int i = 0; i < filters.length; i++) {
             String key = filters[i][0];
-            Button b = addRenderableWidget(Button.builder(Component.literal(filters[i][1]), btn -> {
+            Button b = addRenderableWidget(Button.builder(WbLang.tr(filters[i][1]), btn -> {
                 filter = key;
                 scroll = 0;
                 rebuild();
@@ -218,11 +221,11 @@ public class WorkbenchScreen extends Screen {
         }
 
         // 新建入口常驻左栏，不依赖是否选中词条
-        addRenderableWidget(Button.builder(Component.literal("＋ 新建词条"), b -> newAffix())
+        addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.new"), b -> newAffix())
                 .bounds(lx, ly + filters.length * 18 + 2, lw, 16).build());
 
         // 底部搜索框
-        search = new EditBox(font, pad, height - pad - 16, Math.min(260, width / 2), 16, Component.literal("搜索"));
+        search = new EditBox(font, pad, height - pad - 16, Math.min(260, width / 2), 16, WbLang.tr("apoth_workbench.hint.search"));
         search.setMaxLength(80);
         search.setValue(query);
         search.setResponder(s -> {
@@ -235,7 +238,7 @@ public class WorkbenchScreen extends Screen {
         // 右栏控件
         int by = ry + rh - 108;
         int half = (rw - 8) / 2 - 2;
-        btnRarity = addRenderableWidget(Button.builder(Component.literal("品阶: -"), b -> {
+        btnRarity = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.rarity.dash"), b -> {
             AffixDto a = selected();
             if (a == null || a.rarityKeys().isEmpty()) {
                 return;
@@ -254,44 +257,44 @@ public class WorkbenchScreen extends Screen {
         fSteps.setMaxLength(12);
         fStep.setMaxLength(12);
 
-        btnApply = addRenderableWidget(Button.builder(Component.literal("保存数值"), b -> applyValues())
+        btnApply = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.apply"), b -> applyValues())
                 .bounds(rx + 4, by + 50, half, 16).build());
-        btnSync = addRenderableWidget(Button.builder(Component.literal("同步全部"), b -> syncValues())
+        btnSync = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.sync"), b -> syncValues())
                 .bounds(rx + 4 + half + 4, by + 50, half, 16).build());
-        btnStatus = addRenderableWidget(Button.builder(Component.literal("禁用"), b -> toggleStatus())
+        btnStatus = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.disable"), b -> toggleStatus())
                 .bounds(rx + 4, by + 70, half, 16).build());
-        btnRevert = addRenderableWidget(Button.builder(Component.literal("恢复原样"), b -> revert())
+        btnRevert = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.revert"), b -> revert())
                 .bounds(rx + 4 + half + 4, by + 70, half, 16).build());
         int third = (rw - 8 - 8) / 3;
-        btnDup = addRenderableWidget(Button.builder(Component.literal("复制"), b -> duplicate())
+        btnDup = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.copy"), b -> duplicate())
                 .bounds(rx + 4, by + 90, third, 16).build());
-        btnRename = addRenderableWidget(Button.builder(Component.literal("改名"), b -> rename())
+        btnRename = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.rename"), b -> rename())
                 .bounds(rx + 4 + third + 4, by + 90, third, 16).build());
-        btnDelete = addRenderableWidget(Button.builder(Component.literal("删除"), b -> delete())
+        btnDelete = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.delete"), b -> delete())
                 .bounds(rx + 4 + (third + 4) * 2, by + 90, third, 16).build());
 
         // 单条模式：小按钮（改部位 / 复制 JSON / 粘贴 JSON）
-        btnCats = addRenderableWidget(Button.builder(Component.literal("改部位"), b -> editCats())
+        btnCats = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.cats"), b -> editCats())
                 .bounds(rx + rw - 50, ry + 49, 46, 13).build());
-        btnCopyJson = addRenderableWidget(Button.builder(Component.literal("拷"), b -> copyJson())
+        btnCopyJson = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.copy.json"), b -> copyJson())
                 .bounds(rx + rw - 50, ry + 13, 22, 13).build());
-        btnPasteJson = addRenderableWidget(Button.builder(Component.literal("贴"), b -> pasteJson())
+        btnPasteJson = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.paste.json"), b -> pasteJson())
                 .bounds(rx + rw - 26, ry + 13, 22, 13).build());
 
         // 批量模式
-        btnBatchRarity = addRenderableWidget(Button.builder(Component.literal("品阶: -"), b -> cycleBatchRarity())
+        btnBatchRarity = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.rarity.dash"), b -> cycleBatchRarity())
                 .bounds(rx + 4, by, rw - 8, 16).build());
-        bEnable = addRenderableWidget(Button.builder(Component.literal("批量启用"), b -> batch("enable"))
+        bEnable = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.batch.enable"), b -> batch("enable"))
                 .bounds(rx + 4, by + 20, half, 16).build());
-        bDisable = addRenderableWidget(Button.builder(Component.literal("批量禁用"), b -> batch("disable"))
+        bDisable = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.batch.disable"), b -> batch("disable"))
                 .bounds(rx + 4 + half + 4, by + 20, half, 16).build());
-        bRarityOn = addRenderableWidget(Button.builder(Component.literal("加入品阶"), b -> batch("rarity_on"))
+        bRarityOn = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.batch.rarity.on"), b -> batch("rarity_on"))
                 .bounds(rx + 4, by + 40, half, 16).build());
-        bRarityOff = addRenderableWidget(Button.builder(Component.literal("移出品阶"), b -> batch("rarity_off"))
+        bRarityOff = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.batch.rarity.off"), b -> batch("rarity_off"))
                 .bounds(rx + 4 + half + 4, by + 40, half, 16).build());
-        bDelete = addRenderableWidget(Button.builder(Component.literal("批量删除"), b -> batch("delete"))
+        bDelete = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.batch.delete"), b -> batch("delete"))
                 .bounds(rx + 4, by + 60, half, 16).build());
-        bClearSel = addRenderableWidget(Button.builder(Component.literal("清空选择"), b -> {
+        bClearSel = addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.batch.clear"), b -> {
             checked.clear();
             syncDetail();
         }).bounds(rx + 4 + half + 4, by + 60, half, 16).build());
@@ -426,9 +429,10 @@ public class WorkbenchScreen extends Screen {
             if (batchRarity == null && !rarities.isEmpty()) {
                 batchRarity = rarities.get(rarities.size() - 1).key();
             }
-            btnBatchRarity.setMessage(Component.literal("批量品阶: " + (batchRarity == null ? "未选" : rName(batchRarity))));
+            btnBatchRarity.setMessage(WbLang.tr("apoth_workbench.btn.batch.rarity",
+                    batchRarity == null ? WbLang.tr("apoth_workbench.text.unselected") : Component.literal(rName(batchRarity))));
             boolean delConfirm = "batch-delete".equals(confirmKey) && System.currentTimeMillis() < confirmUntil;
-            bDelete.setMessage(Component.literal(delConfirm ? "确认删除？" : "批量删除"));
+            bDelete.setMessage(WbLang.tr(delConfirm ? "apoth_workbench.btn.confirm.delete" : "apoth_workbench.btn.batch.delete"));
             bRarityOn.active = batchRarity != null;
             bRarityOff.active = batchRarity != null;
             return;
@@ -437,20 +441,22 @@ public class WorkbenchScreen extends Screen {
             return;
         }
         boolean disabled = a.status() != WB.ST_ACTIVE;
-        btnStatus.setMessage(Component.literal(disabled ? "启用词条" : "禁用词条"));
+        btnStatus.setMessage(WbLang.tr(disabled ? "apoth_workbench.btn.enable" : "apoth_workbench.btn.disable"));
         boolean delConfirm = ("del:" + a.id()).equals(confirmKey) && System.currentTimeMillis() < confirmUntil;
-        btnDelete.setMessage(Component.literal(a.has(AffixDto.F_CUSTOM)
-                ? (delConfirm ? "确认？" : "删除")
-                : (delConfirm ? "确认？" : "屏蔽")));
+        btnDelete.setMessage(WbLang.tr(a.has(AffixDto.F_CUSTOM)
+                ? (delConfirm ? "apoth_workbench.btn.confirm.short" : "apoth_workbench.btn.delete")
+                : (delConfirm ? "apoth_workbench.btn.confirm.short" : "apoth_workbench.btn.block")));
         boolean revConfirm = ("rev:" + a.id()).equals(confirmKey) && System.currentTimeMillis() < confirmUntil;
-        btnRevert.setMessage(Component.literal(revConfirm ? "确认恢复？" : "恢复原样"));
+        btnRevert.setMessage(WbLang.tr(revConfirm ? "apoth_workbench.btn.confirm.revert" : "apoth_workbench.btn.revert"));
         btnRevert.active = a.has(AffixDto.F_HAS_ORIGINAL);
 
         List<String> keys = a.rarityKeys();
         if (editRarity == null || !keys.contains(editRarity)) {
             editRarity = keys.isEmpty() ? null : keys.get(keys.size() - 1);
         }
-        btnRarity.setMessage(Component.literal(editRarity == null ? "品阶: 无（点击启用品阶）" : "编辑品阶: " + rName(editRarity)));
+        btnRarity.setMessage(editRarity == null
+                ? WbLang.tr("apoth_workbench.btn.rarity.none")
+                : WbLang.tr("apoth_workbench.btn.rarity.edit", Component.literal(rName(editRarity))));
         btnRarity.active = !keys.isEmpty();
 
         boolean editable = false;
@@ -495,9 +501,9 @@ public class WorkbenchScreen extends Screen {
         return false;
     }
 
-    private void chat(String msg) {
+    private void chat(Component msg) {
         if (minecraft != null && minecraft.player != null) {
-            minecraft.player.displayClientMessage(Component.literal("§c[工作台] " + msg), false);
+            minecraft.player.displayClientMessage(WbLang.tr("apoth_workbench.chat.error", msg), false);
         }
     }
 
@@ -546,7 +552,7 @@ public class WorkbenchScreen extends Screen {
             return;
         }
         if (!a.has(AffixDto.F_CATS_EDITABLE)) {
-            chat("该词条类型没有部位字段，无法修改");
+            chat(WbLang.tr("apoth_workbench.msg.no_type_field"));
             return;
         }
         minecraft.setScreen(new CatsScreen(this, a.id(), a.cats(), categories));
@@ -575,18 +581,18 @@ public class WorkbenchScreen extends Screen {
         }
         String clip = minecraft == null ? "" : minecraft.keyboardHandler.getClipboard();
         if (clip == null || clip.isBlank()) {
-            chat("剪贴板是空的");
+            chat(WbLang.tr("apoth_workbench.msg.clipboard_empty"));
             return;
         }
         com.google.gson.JsonElement el;
         try {
             el = com.google.gson.JsonParser.parseString(clip);
         } catch (Exception ex) {
-            chat("剪贴板内容不是合法 JSON");
+            chat(WbLang.tr("apoth_workbench.msg.clipboard_bad_json"));
             return;
         }
         if (!el.isJsonObject()) {
-            chat("剪贴板内容必须是 JSON 对象");
+            chat(WbLang.tr("apoth_workbench.msg.clipboard_not_object"));
             return;
         }
         JsonObject p = new JsonObject();
@@ -964,145 +970,123 @@ public class WorkbenchScreen extends Screen {
 
     private List<Component> rowTip(AffixDto a) {
         List<Component> out = new ArrayList<>();
-        StringBuilder title = new StringBuilder("§f").append(displayName(a));
+        StringBuilder title = new StringBuilder(WbLang.s("apoth_workbench.tip.title_prefix")).append(displayName(a));
         if (a.has(AffixDto.F_CUSTOM)) {
-            title.append(" §d[自定义]");
+            title.append(WbLang.s("apoth_workbench.tip.tag_custom"));
         }
         if (a.has(AffixDto.F_MODIFIED)) {
-            title.append(" §6[已修改]");
+            title.append(WbLang.s("apoth_workbench.tip.tag_modified"));
         }
         out.add(t(title.toString()));
-        out.add(t("§7ID §f" + a.id()));
-        out.add(t("§7类型 §f" + WbNames.typeWithEn(a.type()) + "   §7状态 §f" + WB.statusName(a.status())));
+        out.add(t(WbLang.s("apoth_workbench.tip.id_line", a.id())));
+        out.add(t(WbLang.s("apoth_workbench.tip.type_status", WbNames.typeWithEn(a.type()), WB.statusName(a.status()))));
         if (a.has(AffixDto.F_LOAD_FAILED)) {
-            out.add(t("§c重载后没有注册成功，请查看 latest.log"));
+            out.add(t(WbLang.s("apoth_workbench.tip.load_failed")));
         }
-        String cats = a.cats().isEmpty() ? "（全部部位）" : WbNames.catsWithEn(a.cats());
-        out.add(t("§7部位 §f" + cats));
+        String cats = a.cats().isEmpty() ? WbLang.s("apoth_workbench.text.all_cats") : WbNames.catsWithEn(a.cats());
+        out.add(t(WbLang.s("apoth_workbench.tip.cats", cats)));
         String desc = descText(a);
         if (!desc.isEmpty()) {
-            out.add(t("§7效果" + (a.descRarity().isEmpty() ? "" : "§8（" + rName(a.descRarity()) + " 品阶）")));
+            out.add(t(a.descRarity().isEmpty()
+                    ? WbLang.s("apoth_workbench.tip.effect")
+                    : WbLang.s("apoth_workbench.tip.effect_rarity", rName(a.descRarity()))));
             for (String line : wrapText(desc, 180, 3)) {
-                out.add(t("§f" + line));
+                out.add(t(WbLang.s("apoth_workbench.tip.desc_line", line)));
             }
         }
         if (!a.has(AffixDto.F_HAS_VALUES)) {
-            out.add(t("§7品阶 §8不受品阶限制"));
+            out.add(t(WbLang.s("apoth_workbench.tip.rarity_unbounded")));
         } else if (a.rarityKeys().isEmpty()) {
-            out.add(t("§c品阶 §c未启用任何品阶，不会出现在战利品中"));
+            out.add(t(WbLang.s("apoth_workbench.tip.rarity_none")));
         } else {
-            out.add(t("§7品阶（" + a.rarityKeys().size() + "）"));
+            out.add(t(WbLang.s("apoth_workbench.tip.rarity_header", a.rarityKeys().size())));
             for (int i = 0; i < a.rarityKeys().size(); i++) {
                 String key = a.rarityKeys().get(i);
-                out.add(t(" §8· §f" + rNameWithEn(key) + " §7" + prettyValue(a.rarityTexts().get(i))));
+                out.add(t(WbLang.s("apoth_workbench.tip.rarity_line", rNameWithEn(key),
+                        prettyValue(a.rarityTexts().get(i)))));
             }
         }
-        out.add(t("§8左键选中，右侧可开关品阶 / 禁用 / 删除"));
+        out.add(t(WbLang.s("apoth_workbench.tip.row_hint")));
         return out;
     }
 
     private void collectWidgetTips() {
-        setTipWidget(btnSave, () -> lines(t("§f保存并重载"), t("§7把改动写进存档数据包并重载游戏内数据"),
-                t("§7客户端会同步到新的词条数据"), t("§8单人暂停时会在关闭界面后自动应用"),
-                t("§8不点这个按钮，改动只在下次开服后生效")));
-        setTipWidget(btnRefresh, () -> lines(t("§f刷新"), t("§7重新扫描数据包里的词条与品阶"),
-                t("§8未保存的编辑会保留")));
-        setTipWidget(btnExport, () -> lines(t("§f导出为 KubeJS 脚本"),
-                t("§7把当前改动写成 ServerEvents.highPriorityData(...)"),
-                t("§7保存到 kubejs/server_scripts/apoth_workbench_affixes.js"),
-                t("§7按住 Shift 点击 = 导出全部词条（让 KubeJS 完全接管）"),
-                t("§8与「保存并重载」的覆盖数据包作用相同，二选一，别同时启用")));
-        setTipWidget(btnClose, () -> lines(t("§f关闭"), t("§8改动已自动存盘，但仍需「保存并重载」才在游戏内生效")));
+        setTipWidget(btnSave, () -> lines(k("tip.save.1"), k("tip.save.2"), k("tip.save.3"),
+                k("tip.save.4"), k("tip.save.5")));
+        setTipWidget(btnRefresh, () -> lines(k("tip.refresh.1"), k("tip.refresh.2"), k("tip.refresh.3")));
+        setTipWidget(btnExport, () -> lines(k("tip.export.1"), k("tip.export.2"), k("tip.export.3"),
+                k("tip.export.4"), k("tip.export.5")));
+        setTipWidget(btnClose, () -> lines(k("tip.close.1"), k("tip.close.2")));
 
         for (int i = 0; i < filterButtons.size(); i++) {
             final int idx = i;
             setTipWidget(filterButtons.get(i), () -> filterTip(idx));
         }
 
-        setTipWidget(btnRarity, () -> lines(t("§f编辑品阶"), t("§7在已启用的品阶之间循环"),
-                t("§7下面的三个数字只作用于当前显示的品阶"),
-                editRarity == null ? t("§8当前没有已启用的品阶") : t("§8当前：" + rNameWithEn(editRarity))));
-        setTipWidget(fMin, () -> lines(t("§f保底数值"), t("§7这件装备最差也有这么多"),
-                t("§8最好能到多少，看另外两个数")));
-        setTipWidget(fSteps, () -> lines(t("§f分成几档"), t("§7词条数值不固定，会被随机分成几档"),
-                t("§7档数越多，两件装备的差距越小"),
-                t("§c不能填 0，最少填 1")));
-        setTipWidget(fStep, () -> lines(t("§f每档加多少"), t("§7从保底往上，每升一档加这么多"),
-                t("§8最好 = 保底 + 档数 × 每档加")));
-        setTipWidget(btnApply, () -> lines(t("§f保存数值"), t("§7只改上面「编辑品阶」选中的那个品阶")));
-        setTipWidget(btnSync, () -> lines(t("§f同步全部"), t("§7把这三个数套到这条词条的所有品阶"),
-                t("§c注意：所有品阶会变成同一个范围")));
-        setTipWidget(btnStatus, () -> lines(t("§f禁用 / 启用"),
-                t("§7禁用：词条不再加载、不再出现在战利品里，数据保留"),
-                t("§7启用：恢复加载（保留之前的编辑）")));
-        setTipWidget(btnRevert, () -> lines(t("§f恢复原样"), t("§7丢弃这条词条的全部编辑与禁用/删除状态"),
-                t("§7回到它出厂时的数据")));
-        setTipWidget(btnDup, () -> lines(t("§f复制"), t("§7以当前词条为模板新建一条"),
-                t("§7会进新建界面，可改 ID、品阶、部位"),
-                t("§8从零造词条用左边「＋ 新建词条」")));
-        setTipWidget(btnRename, () -> lines(t("§f改名"), t("§7给这条词条设一个中文名"),
-                t("§7物品上直接显示，立即生效"),
-                t("§8留空 = 恢复原来的名字")));
-        setTipWidget(btnDelete, () -> lines(t("§f删除 / 屏蔽"),
-                t("§7内置词条：写入假条件让神化忽略它，可「恢复原样」找回"),
-                t("§c自定义词条：直接删除数据")));
-        setTipWidget(search, () -> lines(t("§f搜索"), t("§7匹配词条 ID、中文名、类型、效果、部位")));
+        setTipWidget(btnRarity, () -> lines(k("tip.rarity.1"), k("tip.rarity.2"), k("tip.rarity.3"),
+                editRarity == null ? k("tip.rarity.none") : t(WbLang.s("apoth_workbench.tip.rarity.current", rNameWithEn(editRarity)))));
+        setTipWidget(fMin, () -> lines(k("tip.min.1"), k("tip.min.2"), k("tip.min.3")));
+        setTipWidget(fSteps, () -> lines(k("tip.steps.1"), k("tip.steps.2"), k("tip.steps.3"), k("tip.steps.4")));
+        setTipWidget(fStep, () -> lines(k("tip.step.1"), k("tip.step.2"), k("tip.step.3")));
+        setTipWidget(btnApply, () -> lines(k("tip.apply.1"), k("tip.apply.2")));
+        setTipWidget(btnSync, () -> lines(k("tip.sync.1"), k("tip.sync.2"), k("tip.sync.3")));
+        setTipWidget(btnStatus, () -> lines(k("tip.status.1"), k("tip.status.2"), k("tip.status.3")));
+        setTipWidget(btnRevert, () -> lines(k("tip.revert.1"), k("tip.revert.2"), k("tip.revert.3")));
+        setTipWidget(btnDup, () -> lines(k("tip.dup.1"), k("tip.dup.2"), k("tip.dup.3"), k("tip.dup.4")));
+        setTipWidget(btnRename, () -> lines(k("tip.rename.1"), k("tip.rename.2"), k("tip.rename.3"), k("tip.rename.4")));
+        setTipWidget(btnDelete, () -> lines(k("tip.delete.1"), k("tip.delete.2"), k("tip.delete.3")));
+        setTipWidget(search, () -> lines(k("tip.search.1"), k("tip.search.2")));
 
-        setTipWidget(btnCats, () -> lines(t("§f改部位"), t("§7修改这条词条能出现在哪些物品上"),
-                t("§8全不选 = 所有部位都能出")));
-        setTipWidget(btnCopyJson, () -> lines(t("§f复制 JSON"), t("§7把整条词条的 JSON 复制到剪贴板"),
-                t("§8可以用外部编辑器改，再用「贴」贴回来")));
-        setTipWidget(btnPasteJson, () -> lines(t("§f粘贴 JSON"), t("§7用剪贴板里的 JSON 整体替换这条词条"),
-                t("§7会先校验：type/属性/效果/部位/品阶/数值"),
-                t("§8校验不过会直接拒绝并说明原因")));
+        setTipWidget(btnCats, () -> lines(k("tip.cats.1"), k("tip.cats.2"), k("tip.cats.3")));
+        setTipWidget(btnCopyJson, () -> lines(k("tip.copyjson.1"), k("tip.copyjson.2"), k("tip.copyjson.3")));
+        setTipWidget(btnPasteJson, () -> lines(k("tip.pastejson.1"), k("tip.pastejson.2"),
+                k("tip.pastejson.3"), k("tip.pastejson.4")));
 
-        setTipWidget(btnBatchRarity, () -> lines(t("§f批量品阶"), t("§7切换「加入品阶 / 移出品阶」要操作的品阶")));
-        setTipWidget(bEnable, () -> lines(t("§f批量启用"), t("§7把选中的词条全部恢复加载")));
-        setTipWidget(bDisable, () -> lines(t("§f批量禁用"), t("§7选中的词条全部停用，数据保留")));
-        setTipWidget(bRarityOn, () -> lines(t("§f加入品阶"), t("§7给选中的所有词条加一个品阶"),
-                t("§8没有该品阶数值的会沿用各自最高品阶的数值")));
-        setTipWidget(bRarityOff, () -> lines(t("§f移出品阶"), t("§7把该品阶从选中的所有词条里去掉")));
-        setTipWidget(bDelete, () -> lines(t("§f批量删除"), t("§c需要连点两次确认"),
-                t("§7内置词条=屏蔽，自定义词条=彻底删除")));
-        setTipWidget(bClearSel, () -> lines(t("§f清空选择"), t("§8回到单条编辑模式")));
+        setTipWidget(btnBatchRarity, () -> lines(k("tip.batchrarity.1"), k("tip.batchrarity.2")));
+        setTipWidget(bEnable, () -> lines(k("tip.batchenable.1"), k("tip.batchenable.2")));
+        setTipWidget(bDisable, () -> lines(k("tip.batchdisable.1"), k("tip.batchdisable.2")));
+        setTipWidget(bRarityOn, () -> lines(k("tip.batchon.1"), k("tip.batchon.2"), k("tip.batchon.3")));
+        setTipWidget(bRarityOff, () -> lines(k("tip.batchoff.1"), k("tip.batchoff.2")));
+        setTipWidget(bDelete, () -> lines(k("tip.batchdelete.1"), k("tip.batchdelete.2"), k("tip.batchdelete.3")));
+        setTipWidget(bClearSel, () -> lines(k("tip.batchclear.1"), k("tip.batchclear.2")));
+    }
+
+    /** tooltip 文案：查表得到当前语言的纯文本 */
+    private static Component k(String shortKey, Object... args) {
+        return Component.literal(WbLang.s("apoth_workbench." + shortKey, args));
     }
 
     private List<Component> filterTip(int index) {
         return switch (index) {
-            case 1 -> lines(t("§f已修改"), t("§7改动过、或处于禁用/删除状态的词条"));
-            case 2 -> lines(t("§f已禁用"), t("§7保留数据但当前不加载的词条"));
-            case 3 -> lines(t("§f已删除"), t("§7被屏蔽/删除、当前不在游戏里的词条"));
-            case 4 -> lines(t("§f自定义"), t("§7通过工作台新建的词条"));
-            default -> lines(t("§f全部词条"), t("§7神化数据包里所有已注册的词条"));
+            case 1 -> lines(k("tip.filter.modified.1"), k("tip.filter.modified.2"));
+            case 2 -> lines(k("tip.filter.disabled.1"), k("tip.filter.disabled.2"));
+            case 3 -> lines(k("tip.filter.deleted.1"), k("tip.filter.deleted.2"));
+            case 4 -> lines(k("tip.filter.custom.1"), k("tip.filter.custom.2"));
+            default -> lines(k("tip.filter.all.1"), k("tip.filter.all.2"));
         };
     }
 
     private void drawHeader(GuiGraphics g) {
         g.fill(hx, hy, hx + hw, hy + hh, C_PANEL);
         g.fill(hx, hy + hh - 1, hx + hw, hy + hh, C_BORDER);
-        g.drawString(font, "神化工作台", hx + 6, hy + 6, C_ACCENT, false);
+        g.drawString(font, WbLang.s("apoth_workbench.title"), hx + 6, hy + 6, C_ACCENT, false);
         if (!Arrays.equals(lastStats, stats)) {
             lastStats = stats.clone();
-            headerInfo = String.format(Locale.ROOT, "共 %d 条 · 正常 %d · 已禁用 %d · 已删 %d · 自建 %d · 改过 %d",
+            headerInfo = WbLang.s("apoth_workbench.header.stats",
                     stats[0], stats[1], stats[2], stats[3], stats[4], stats[5]);
         }
         g.drawString(font, headerInfo, hx + 74, hy + 7, C_MUTED, false);
         setTip(hx + 74, hy + 5, font.width(headerInfo), 11, () -> lines(
-                t("§f这些数字是什么意思"),
-                t("§7共 = 扫描到的词条总数"),
-                t("§7正常 / 已禁用 / 已删 = 每条词条现在的状态"),
-                t("§7自建 = 用工作台新建出来的词条"),
-                t("§7改过 = 和原版数据不一样的数量")));
+                k("tip.stats.1"), k("tip.stats.2"), k("tip.stats.3"), k("tip.stats.4"), k("tip.stats.5")));
     }
 
     private void drawFooter(GuiGraphics g) {
         int y = height - 18;
         int x = search.getX() + search.getWidth() + 8;
         if (stats.length > 6 && stats[6] == 1) {
-            g.drawString(font, "● 改动已写入文件，点「保存并重载」生效（世界暂停时会在关闭界面后应用）", x, y, C_WARN, false);
+            g.drawString(font, WbLang.s("apoth_workbench.footer.pending"), x, y, C_WARN, false);
         } else {
-            g.drawString(font, "滚轮翻页 · 点击品阶开关调整归属 · 选中词条可禁用/删除/复制",
-                    x, y, C_MUTED, false);
+            g.drawString(font, WbLang.s("apoth_workbench.footer.hint"), x, y, C_MUTED, false);
         }
     }
 
@@ -1119,7 +1103,7 @@ public class WorkbenchScreen extends Screen {
         }
 
         int cy = ly + filterButtons.size() * 18 + 24;
-        g.drawString(font, "品阶筛选", lx + 4, cy, C_ACCENT, false);
+        g.drawString(font, WbLang.s("apoth_workbench.sidebar.rarity_filter"), lx + 4, cy, C_ACCENT, false);
         filterChips.clear();
         int cx = lx + 4;
         int cyy = cy + 12;
@@ -1135,27 +1119,20 @@ public class WorkbenchScreen extends Screen {
             drawChip(g, cx, cyy, w, 13, label, on, r.color());
             filterChips.add(new Chip(cx, cyy, w, 13, r.key(), on));
             setTip(cx, cyy, w, 13, lines(
-                    t("§f品阶 " + WbNames.rarityWithEn(r) + (on ? " §a（筛选中）" : "")),
-                    t("§8序号 " + r.ordinal() + " · 权重 " + r.weight()),
-                    t("§7只看属于这个品阶的词条"),
-                    t("§8再点一次取消筛选")));
+                    k(on ? "tip.rarity.filter_on" : "tip.rarity.filter_off", WbNames.rarityWithEn(r)),
+                    k("tip.rarity.meta", r.ordinal(), r.weight()),
+                    k("tip.rarity.filter.1"),
+                    k("tip.rarity.filter.2")));
             cx += w + 3;
         }
     }
 
+    private static final String[] FILTER_KEYS = {"filter.all", "filter.modified", "filter.disabled",
+            "filter.deleted", "filter.custom"};
+
     private String labelOf(Button b) {
-        for (int i = 0; i < filterButtons.size(); i++) {
-            if (filterButtons.get(i) == b) {
-                return switch (i) {
-                    case 0 -> "全部词条";
-                    case 1 -> "已修改";
-                    case 2 -> "已禁用";
-                    case 3 -> "已删除";
-                    default -> "自定义";
-                };
-            }
-        }
-        return "";
+        int i = filterButtons.indexOf(b);
+        return i >= 0 && i < FILTER_KEYS.length ? WbLang.s("apoth_workbench." + FILTER_KEYS[i]) : "";
     }
 
     private String countSuffix(Button b) {
@@ -1226,7 +1203,8 @@ public class WorkbenchScreen extends Screen {
                 dotX -= 5;
             }
             if (a.status() != WB.ST_ACTIVE) {
-                String badge = a.status() == WB.ST_DELETED ? "删" : "禁";
+                String badge = WbLang.s(a.status() == WB.ST_DELETED
+                        ? "apoth_workbench.badge.deleted" : "apoth_workbench.badge.disabled");
                 g.drawString(font, badge, mx + mw - 18, y + 3,
                         a.status() == WB.ST_DELETED ? C_BAD : C_WARN, false);
             }
@@ -1246,14 +1224,15 @@ public class WorkbenchScreen extends Screen {
         }
 
         if (shown.isEmpty()) {
-            g.drawString(font, "没有符合条件的词条", mx + mw / 2 - font.width("没有符合条件的词条") / 2, my + mh / 2, C_MUTED, false);
+            String empty = WbLang.s("apoth_workbench.list.empty");
+            g.drawString(font, empty, mx + mw / 2 - font.width(empty) / 2, my + mh / 2, C_MUTED, false);
         }
     }
 
     private void drawDetail(GuiGraphics g) {
         g.fill(rx, ry, rx + rw, ry + rh, C_PANEL);
         g.fill(rx, ry, rx + 1, ry + rh, C_BORDER);
-        g.drawString(font, "词条详情", rx + 5, ry + 5, C_ACCENT, false);
+        g.drawString(font, WbLang.s("apoth_workbench.detail.title"), rx + 5, ry + 5, C_ACCENT, false);
 
         detailChips.clear();
         if (!checked.isEmpty()) {
@@ -1262,24 +1241,26 @@ public class WorkbenchScreen extends Screen {
         }
         AffixDto a = selected();
         if (a == null) {
-            g.drawString(font, "← 从中间列表里选择一条词条", rx + 6, ry + 26, C_MUTED, false);
-            g.drawString(font, "点行左侧方块可多选、批量处理", rx + 6, ry + 40, C_MUTED, false);
-            g.drawString(font, "想自己造一条就点左边「＋ 新建词条」", rx + 6, ry + 60, C_ACCENT, false);
+            g.drawString(font, WbLang.s("apoth_workbench.detail.empty.1"), rx + 6, ry + 26, C_MUTED, false);
+            g.drawString(font, WbLang.s("apoth_workbench.detail.empty.2"), rx + 6, ry + 40, C_MUTED, false);
+            g.drawString(font, WbLang.s("apoth_workbench.detail.empty.3"), rx + 6, ry + 60, C_ACCENT, false);
             return;
         }
 
         g.drawString(font, clip(a.id(), rw - 58), rx + 5, ry + 18, C_TEXT, false);
         setTip(rx + 5, ry + 17, rw - 10, 10, () -> lines(
-                t("§f" + a.id()),
-                t("§7这是词条的数据包 ID，也是生成文件的名字"),
-                a.has(AffixDto.F_CUSTOM) ? t("§d工作台新建的词条") : t("§8来自神化或其它数据包")));
+                k("tip.id.1", a.id()),
+                k("tip.id.2"),
+                a.has(AffixDto.F_CUSTOM) ? k("tip.id.custom") : k("tip.id.external")));
         int statusColor = a.status() == WB.ST_ACTIVE ? C_GOOD : (a.status() == WB.ST_DISABLED ? C_WARN : C_BAD);
-        String statusText = "状态: " + WB.statusName(a.status()) + (a.has(AffixDto.F_LOAD_FAILED) ? " · 未注册成功" : "");
+        String statusText = WbLang.s(a.has(AffixDto.F_LOAD_FAILED)
+                ? "apoth_workbench.detail.status_failed" : "apoth_workbench.detail.status", WB.statusName(a.status()));
         g.drawString(font, clip(statusText, rw - 10), rx + 5, ry + 30,
                 a.has(AffixDto.F_LOAD_FAILED) ? C_BAD : statusColor, false);
-        g.drawString(font, clip("类型: " + WbNames.typeWithEn(a.type()), rw - 10), rx + 5, ry + 42, C_MUTED, false);
-        String cats = a.cats().isEmpty() ? "（全部）" : WbNames.cats(a.cats());
-        g.drawString(font, clip("部位: " + cats, rw - 60), rx + 5, ry + 54, C_MUTED, false);
+        g.drawString(font, clip(WbLang.s("apoth_workbench.detail.type", WbNames.typeWithEn(a.type())), rw - 10),
+                rx + 5, ry + 42, C_MUTED, false);
+        String cats = a.cats().isEmpty() ? WbLang.s("apoth_workbench.text.all_cats_short") : WbNames.cats(a.cats());
+        g.drawString(font, clip(WbLang.s("apoth_workbench.detail.cats", cats), rw - 60), rx + 5, ry + 54, C_MUTED, false);
 
         // 效果描述（跟随当前编辑的品阶）
         List<String> descLines = wrapText(descForRarity(a, editRarity), rw - 12, rh >= 280 ? 2 : 1);
@@ -1289,7 +1270,8 @@ public class WorkbenchScreen extends Screen {
         int labelY = ry + 66 + descLines.size() * 10 + 4;
 
         boolean hasValues = a.has(AffixDto.F_HAS_VALUES);
-        g.drawString(font, hasValues ? "能在哪些品阶出现（点一下开关）" : "这条词条所有品阶都会出",
+        g.drawString(font, WbLang.s(hasValues
+                        ? "apoth_workbench.detail.rarity_editable" : "apoth_workbench.detail.rarity_fixed"),
                 rx + 5, labelY, C_ACCENT, false);
 
         if (hasValues) {
@@ -1310,27 +1292,27 @@ public class WorkbenchScreen extends Screen {
                 if (on) {
                     int idx = a.rarityKeys().indexOf(r.key());
                     String value = idx >= 0 ? prettyValue(a.rarityTexts().get(idx)) : "—";
-                    tipLines = lines(t("§f品阶 " + WbNames.rarityWithEn(r) + " §a（已启用）"),
-                            t("§8序号 " + r.ordinal() + " · 权重 " + r.weight()),
-                            t("§7数值 §f" + value),
-                            t("§8点击关闭：该品阶不再产出这条词条"));
+                    tipLines = lines(k("tip.chip.on.1", WbNames.rarityWithEn(r)),
+                            k("tip.rarity.meta", r.ordinal(), r.weight()),
+                            k("tip.chip.on.2", value),
+                            k("tip.chip.on.3"));
                 } else {
-                    tipLines = lines(t("§f品阶 " + WbNames.rarityWithEn(r) + " §8（未启用）"),
-                            t("§8序号 " + r.ordinal() + " · 权重 " + r.weight()),
-                            t("§7点击启用：让这条词条也能在这个品阶出现"),
-                            t("§8数值会沿用该词条最高品阶的数值"));
+                    tipLines = lines(k("tip.chip.off.1", WbNames.rarityWithEn(r)),
+                            k("tip.rarity.meta", r.ordinal(), r.weight()),
+                            k("tip.chip.off.2"),
+                            k("tip.chip.off.3"));
                 }
                 setTip(cx, cy, w, 14, tipLines);
                 cx += w + 3;
             }
         } else {
-            g.drawString(font, "（这种词条没法单独设品阶，只能整体禁用）", rx + 5, labelY + 14, C_MUTED, false);
+            g.drawString(font, WbLang.s("apoth_workbench.detail.rarity_disabled_hint"), rx + 5, labelY + 14, C_MUTED, false);
         }
 
         // 数值编辑区说明
         int by = ry + rh - 108;
         g.fill(rx + 5, by - 6, rx + rw - 5, by - 5, C_BORDER);
-        g.drawString(font, "保底 / 档数 / 每档加", rx + 5, by + 20, C_MUTED, false);
+        g.drawString(font, WbLang.s("apoth_workbench.detail.values_label"), rx + 5, by + 20, C_MUTED, false);
         String preview = stepPreview();
         if (preview != null) {
             int pw = font.width(preview);
@@ -1339,15 +1321,12 @@ public class WorkbenchScreen extends Screen {
             }
         }
         setTip(rx + 5, by + 18, rw - 10, 10, () -> lines(
-                t("§f这条词条能刷到的范围"),
-                t("§7装备生成时随机取一档，所以每件都不一样"),
-                t("§8最差 = 保底，最好 = 保底 + 档数 × 每档加"),
-                t("§8例：0.3 / 20 / 0.02 → 最差 0.3，最好 0.7")));
+                k("tip.range.1"), k("tip.range.2"), k("tip.range.3"), k("tip.range.4")));
     }
 
     private void drawBatchPanel(GuiGraphics g) {
-        g.drawString(font, "批量操作", rx + 5, ry + 18, C_ACCENT, false);
-        g.drawString(font, "已选 " + checked.size() + " 条词条", rx + 5, ry + 32, C_TEXT, false);
+        g.drawString(font, WbLang.s("apoth_workbench.batch.title"), rx + 5, ry + 18, C_ACCENT, false);
+        g.drawString(font, WbLang.s("apoth_workbench.batch.selected", checked.size()), rx + 5, ry + 32, C_TEXT, false);
         int disabled = 0;
         int deleted = 0;
         int custom = 0;
@@ -1365,12 +1344,12 @@ public class WorkbenchScreen extends Screen {
                 custom++;
             }
         }
-        g.drawString(font, "其中 禁用 " + disabled + " · 删除 " + deleted + " · 自定义 " + custom,
+        g.drawString(font, WbLang.s("apoth_workbench.batch.breakdown", disabled, deleted, custom),
                 rx + 5, ry + 44, C_MUTED, false);
-        g.drawString(font, "勾选：点行左侧方块", rx + 5, ry + 62, C_MUTED, false);
-        g.drawString(font, "连选：Shift+点行", rx + 5, ry + 74, C_MUTED, false);
-        g.drawString(font, "切换：Ctrl+点行", rx + 5, ry + 86, C_MUTED, false);
-        g.drawString(font, "批量只改状态/品阶，不动数值与部位", rx + 5, ry + 104, C_MUTED, false);
+        g.drawString(font, WbLang.s("apoth_workbench.batch.hint.1"), rx + 5, ry + 62, C_MUTED, false);
+        g.drawString(font, WbLang.s("apoth_workbench.batch.hint.2"), rx + 5, ry + 74, C_MUTED, false);
+        g.drawString(font, WbLang.s("apoth_workbench.batch.hint.3"), rx + 5, ry + 86, C_MUTED, false);
+        g.drawString(font, WbLang.s("apoth_workbench.batch.hint.4"), rx + 5, ry + 104, C_MUTED, false);
     }
 
     private int colorOf(String rarityKey) {
@@ -1399,8 +1378,8 @@ public class WorkbenchScreen extends Screen {
             previewOk = steps >= 1 && steps == Math.rint(steps) && step >= 0
                     && Double.isFinite(min) && Double.isFinite(step);
             previewText = previewOk
-                    ? "能刷到 " + WB.fmt(min) + " ~ " + WB.fmt(min + steps * step)
-                    : "档数要 ≥1 的整数";
+                    ? WbLang.s("apoth_workbench.detail.preview", WB.fmt(min), WB.fmt(min + steps * step))
+                    : WbLang.s("apoth_workbench.detail.preview_bad");
             return previewText;
         } catch (Exception ex) {
             previewText = null;

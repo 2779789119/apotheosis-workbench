@@ -1,5 +1,6 @@
 package cn.blockforge.apothworkbench.client;
 
+import cn.blockforge.apothworkbench.WbLang;
 import cn.blockforge.apothworkbench.net.EditPacket;
 import cn.blockforge.apothworkbench.net.WorkbenchNetwork;
 import com.google.gson.JsonArray;
@@ -46,7 +47,7 @@ public class CatsScreen extends Screen {
     }
 
     public CatsScreen(Screen parent, String affixId, String catsCsv, List<String> available) {
-        super(Component.literal("修改适用部位"));
+        super(WbLang.tr("apoth_workbench.cats.title"));
         this.parent = parent;
         this.affixId = affixId;
         this.available = List.copyOf(available);
@@ -65,9 +66,9 @@ public class CatsScreen extends Screen {
         px = (width - pw) / 2;
         py = (height - ph) / 2;
         int half = (pw - 16) / 2 - 2;
-        addRenderableWidget(Button.builder(Component.literal("保存"), b -> save())
+        addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.save_short"), b -> save())
                 .bounds(px + 8, py + ph - 22, half, 16).build());
-        addRenderableWidget(Button.builder(Component.literal("取消"), b -> minecraft.setScreen(parent))
+        addRenderableWidget(Button.builder(WbLang.tr("apoth_workbench.btn.cancel"), b -> minecraft.setScreen(parent))
                 .bounds(px + 8 + half + 4, py + ph - 22, half, 16).build());
     }
 
@@ -93,8 +94,8 @@ public class CatsScreen extends Screen {
         g.fill(px, py, px + pw, py + 1, C_BORDER);
         g.fill(px, py + ph - 1, px + pw, py + ph, C_BORDER);
 
-        g.drawString(font, "修改适用部位", px + 8, py + 8, C_ACCENT, false);
-        g.drawString(font, "点击切换；全不选 = 所有部位都能出", px + 8, py + 22, C_MUTED, false);
+        g.drawString(font, WbLang.s("apoth_workbench.cats.title"), px + 8, py + 8, C_ACCENT, false);
+        g.drawString(font, WbLang.s("apoth_workbench.cats.hint"), px + 8, py + 22, C_MUTED, false);
         g.drawString(font, "§8" + affixId, px + 8, py + 36, C_TEXT, false);
 
         chips.clear();
@@ -118,15 +119,15 @@ public class CatsScreen extends Screen {
             }
             if (mouseX >= cx && mouseX < cx + w && mouseY >= cy && mouseY < cy + 15) {
                 if (tip == null) {
-                    tip = List.of(Component.literal("§f" + label + " §8(" + key + ")"),
-                            Component.literal(on ? "§7已选中，点击取消" : "§7点击选中"));
+                    tip = List.of(Component.literal(WbLang.s("apoth_workbench.cats.tip.name", label, key)),
+                            Component.literal(WbLang.s(on ? "apoth_workbench.cats.tip.on" : "apoth_workbench.cats.tip.off")));
                 }
             }
             chips.add(new Chip(cx, cy, w, 15, key, on));
             cx += w + 4;
         }
 
-        g.drawString(font, "已选 " + chosen.size() + " 个部位", px + 8, py + ph - 38, C_MUTED, false);
+        g.drawString(font, WbLang.s("apoth_workbench.cats.selected", chosen.size()), px + 8, py + ph - 38, C_MUTED, false);
 
         super.render(g, mouseX, mouseY, partial);
         if (tip != null) {

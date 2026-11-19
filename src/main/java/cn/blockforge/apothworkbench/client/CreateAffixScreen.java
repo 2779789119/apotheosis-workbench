@@ -1,5 +1,6 @@
 package cn.blockforge.apothworkbench.client;
 
+import cn.blockforge.apothworkbench.WbLang;
 import cn.blockforge.apothworkbench.data.RarityInfo;
 import cn.blockforge.apothworkbench.net.EditPacket;
 import cn.blockforge.apothworkbench.net.WorkbenchNetwork;
@@ -68,7 +69,7 @@ public class CreateAffixScreen extends Screen {
     }
 
     public CreateAffixScreen(Screen parent, String sourceId, List<RarityInfo> rarities, List<String> availableCats, String mode) {
-        super(Component.literal("新建词条"));
+        super(WbLang.tr("create.title"));
         this.parent = parent;
         this.sourceId = sourceId;
         this.rarities = rarities;
@@ -90,32 +91,32 @@ public class CreateAffixScreen extends Screen {
                 : "apoth_workbench:custom/new_affix";
         idW = (pw - 16) * 3 / 5 - 2;
         int nameW = pw - 16 - idW - 4;
-        editId = new EditBox(font, px + 8, py + 30, idW, 16, Component.literal("词条 ID"));
+        editId = new EditBox(font, px + 8, py + 30, idW, 16, WbLang.tr("create.label.id"));
         editId.setMaxLength(120);
         editId.setValue(suggestion);
         addRenderableWidget(editId);
 
-        editName = new EditBox(font, px + 8 + idW + 4, py + 30, nameW, 16, Component.literal("名称"));
+        editName = new EditBox(font, px + 8 + idW + 4, py + 30, nameW, 16, WbLang.tr("create.name_hint"));
         editName.setMaxLength(40);
         addRenderableWidget(editName);
 
         int bw = (pw - 16 - 12) / 4;
-        btnModeCopy = addRenderableWidget(Button.builder(Component.literal("复制"), b -> setMode("copy"))
+        btnModeCopy = addRenderableWidget(Button.builder(WbLang.tr("create.mode.copy"), b -> setMode("copy"))
                 .bounds(px + 8, py + 50, bw, 16).build());
-        btnModeAttr = addRenderableWidget(Button.builder(Component.literal("属性"), b -> setMode("attribute"))
+        btnModeAttr = addRenderableWidget(Button.builder(WbLang.tr("create.mode.attr"), b -> setMode("attribute"))
                 .bounds(px + 8 + bw + 4, py + 50, bw, 16).build());
-        btnModePotion = addRenderableWidget(Button.builder(Component.literal("药水"), b -> setMode("mob_effect"))
+        btnModePotion = addRenderableWidget(Button.builder(WbLang.tr("create.mode.potion"), b -> setMode("mob_effect"))
                 .bounds(px + 8 + (bw + 4) * 2, py + 50, bw, 16).build());
-        btnModePaste = addRenderableWidget(Button.builder(Component.literal("粘贴 JSON"), b -> {
+        btnModePaste = addRenderableWidget(Button.builder(WbLang.tr("create.btn.paste"), b -> {
             readClipboard();
             setMode("paste");
         }).bounds(px + 8 + (bw + 4) * 3, py + 50, bw, 16).build());
 
         int paramW = pw - 16 - 26;
-        editParam = new EditBox(font, px + 8, py + 79, paramW, 16, Component.literal("参数"));
+        editParam = new EditBox(font, px + 8, py + 79, paramW, 16, WbLang.tr("create.param_hint"));
         editParam.setMaxLength(120);
         addRenderableWidget(editParam);
-        btnPick = addRenderableWidget(Button.builder(Component.literal("选…"), b -> pickParam())
+        btnPick = addRenderableWidget(Button.builder(WbLang.tr("create.btn.pick"), b -> pickParam())
                 .bounds(px + 8 + paramW + 4, py + 79, 22, 16).build());
 
         btnCycle = addRenderableWidget(Button.builder(Component.literal("ADDITION"), b -> cycle())
@@ -133,16 +134,16 @@ public class CreateAffixScreen extends Screen {
         fStep.setValue("0.1");
 
         int catsW = pw - 16 - 26;
-        editCats = new EditBox(font, px + 8, py + 208, catsW, 16, Component.literal("适用部位"));
+        editCats = new EditBox(font, px + 8, py + 208, catsW, 16, WbLang.tr("create.label.cats_hint"));
         editCats.setMaxLength(200);
         editCats.setValue("sword");
         addRenderableWidget(editCats);
-        btnPickCats = addRenderableWidget(Button.builder(Component.literal("选…"), b -> pickCats())
+        btnPickCats = addRenderableWidget(Button.builder(WbLang.tr("create.btn.pick"), b -> pickCats())
                 .bounds(px + 8 + catsW + 4, py + 208, 22, 16).build());
 
-        btnCreate = addRenderableWidget(Button.builder(Component.literal("创建"), b -> create())
+        btnCreate = addRenderableWidget(Button.builder(WbLang.tr("create.btn.create"), b -> create())
                 .bounds(px + 8, py + ph - 22, (pw - 16) / 2 - 2, 16).build());
-        btnCancel = addRenderableWidget(Button.builder(Component.literal("取消"), b -> minecraft.setScreen(parent))
+        btnCancel = addRenderableWidget(Button.builder(WbLang.tr("btn.cancel"), b -> minecraft.setScreen(parent))
                 .bounds(px + 8 + (pw - 16) / 2 + 2, py + ph - 22, (pw - 16) / 2 - 2, 16).build());
 
         if (sourceId == null && "copy".equals(mode)) {
@@ -166,10 +167,10 @@ public class CreateAffixScreen extends Screen {
 
     private void setMode(String m) {
         mode = m;
-        btnModeCopy.setMessage(Component.literal(("copy".equals(m) ? "★ " : "") + "复制"));
-        btnModeAttr.setMessage(Component.literal(("attribute".equals(m) ? "★ " : "") + "属性"));
-        btnModePotion.setMessage(Component.literal(("mob_effect".equals(m) ? "★ " : "") + "药水"));
-        btnModePaste.setMessage(Component.literal(("paste".equals(m) ? "★ " : "") + "粘贴"));
+        btnModeCopy.setMessage(modeLabel("copy".equals(m), "create.mode.copy"));
+        btnModeAttr.setMessage(modeLabel("attribute".equals(m), "create.mode.attr"));
+        btnModePotion.setMessage(modeLabel("mob_effect".equals(m), "create.mode.potion"));
+        btnModePaste.setMessage(modeLabel("paste".equals(m), "create.mode.paste"));
 
         boolean isAttr = "attribute".equals(m);
         boolean isPotion = "mob_effect".equals(m);
@@ -187,13 +188,18 @@ public class CreateAffixScreen extends Screen {
             if (editParam.getValue().isEmpty() || editParam.getValue().startsWith("minecraft:speed")) {
                 editParam.setValue("minecraft:generic.max_health");
             }
-            btnCycle.setMessage(Component.literal("运算: " + operation));
+            btnCycle.setMessage(WbLang.tr("create.operation", operation));
         } else if (isPotion) {
             if (editParam.getValue().isEmpty() || editParam.getValue().startsWith("minecraft:generic")) {
                 editParam.setValue("minecraft:speed");
             }
-            btnCycle.setMessage(Component.literal("触发: " + target));
+            btnCycle.setMessage(WbLang.tr("create.target", target));
         }
+    }
+
+    /** 模式按钮文字，选中的加 ★ 前缀 */
+    private static Component modeLabel(boolean active, String key) {
+        return active ? WbLang.tr("create.mode_label_on", WbLang.tr(key)) : WbLang.tr(key);
     }
 
     /** 多选适用部位 */
@@ -204,7 +210,7 @@ public class CreateAffixScreen extends Screen {
                 initial.add(s.trim());
             }
         }
-        minecraft.setScreen(new PickScreen(this, "选择适用部位", availableCats, initial,
+        minecraft.setScreen(new PickScreen(this, WbLang.s("create.pick.cats_title"), availableCats, initial,
                 picked -> editCats.setValue(String.join(",", picked)),
                 WbNames::cats, true));
     }
@@ -233,7 +239,7 @@ public class CreateAffixScreen extends Screen {
             }
         }
         ids.sort(String::compareTo);
-        minecraft.setScreen(new PickScreen(this, isAttr ? "选择属性" : "选择效果", ids,
+        minecraft.setScreen(new PickScreen(this, WbLang.s(isAttr ? "create.pick.attr_title" : "create.pick.effect_title"), ids,
                 picked -> editParam.setValue(picked),
                 rawId -> {
                     var rl = net.minecraft.resources.ResourceLocation.tryParse(rawId);
@@ -256,13 +262,13 @@ public class CreateAffixScreen extends Screen {
                 case "MULTIPLY_BASE" -> "MULTIPLY_TOTAL";
                 default -> "ADDITION";
             };
-            btnCycle.setMessage(Component.literal("运算: " + operation));
+            btnCycle.setMessage(WbLang.tr("create.operation", operation));
         } else {
             target = switch (target) {
                 case "HURT_SELF" -> "HURT_ATTACKER";
                 default -> "HURT_SELF";
             };
-            btnCycle.setMessage(Component.literal("触发: " + target));
+            btnCycle.setMessage(WbLang.tr("create.target", target));
         }
     }
 
@@ -272,27 +278,27 @@ public class CreateAffixScreen extends Screen {
         pasteMsg = "";
         String clip = minecraft == null ? "" : minecraft.keyboardHandler.getClipboard();
         if (clip == null || clip.isBlank()) {
-            pasteMsg = "剪贴板是空的，先把词条 JSON 复制进来";
+            pasteMsg = WbLang.s("create.paste_msg.empty");
             return;
         }
         try {
             com.google.gson.JsonElement el = com.google.gson.JsonParser.parseString(clip);
             if (!el.isJsonObject()) {
-                pasteMsg = "剪贴板内容不是 JSON 对象";
+                pasteMsg = WbLang.s("create.paste_msg.not_object");
                 return;
             }
             JsonObject obj = el.getAsJsonObject();
             if (!obj.has("type")) {
-                pasteMsg = "JSON 里缺少 type 字段（例如 \"apotheosis:attribute\"）";
+                pasteMsg = WbLang.s("create.paste_msg.no_type");
                 return;
             }
             pasted = obj;
-            pasteMsg = "已读取 " + obj.get("type").getAsString();
+            pasteMsg = WbLang.s("create.paste_msg.ok", obj.get("type").getAsString());
             if (obj.has("values") && obj.get("values").isJsonObject()) {
-                pasteMsg += " · " + obj.getAsJsonObject("values").size() + " 个品阶";
+                pasteMsg += WbLang.s("create.paste_msg.rarities", obj.getAsJsonObject("values").size());
             }
         } catch (Exception ex) {
-            pasteMsg = "剪贴板内容不是合法 JSON";
+            pasteMsg = WbLang.s("create.paste_msg.bad_json");
         }
     }
 
@@ -368,38 +374,38 @@ public class CreateAffixScreen extends Screen {
         g.fill(px, py, px + pw, py + 1, 0xFF33334A);
         g.fill(px, py + ph - 1, px + pw, py + ph, 0xFF33334A);
 
-        g.drawString(font, "新建词条", px + 8, py + 8, 0xFF9B6CFF, false);
-        g.drawString(font, "词条 ID", px + 8, py + 20, 0xFF8C8CA0, false);
-        g.drawString(font, "名称（可留空）", px + 8 + idW + 4, py + 20, 0xFF9B6CFF, false);
+        g.drawString(font, WbLang.s("create.title"), px + 8, py + 8, 0xFF9B6CFF, false);
+        g.drawString(font, WbLang.s("create.label.id"), px + 8, py + 20, 0xFF8C8CA0, false);
+        g.drawString(font, WbLang.s("create.label.name"), px + 8 + idW + 4, py + 20, 0xFF9B6CFF, false);
 
         if ("attribute".equals(mode)) {
-            g.drawString(font, "属性 ID", px + 8, py + 68, 0xFF8C8CA0, false);
+            g.drawString(font, WbLang.s("create.label.attr_id"), px + 8, py + 68, 0xFF8C8CA0, false);
         } else if ("mob_effect".equals(mode)) {
-            g.drawString(font, "效果 ID", px + 8, py + 68, 0xFF8C8CA0, false);
+            g.drawString(font, WbLang.s("create.label.effect_id"), px + 8, py + 68, 0xFF8C8CA0, false);
         } else if ("paste".equals(mode)) {
-            g.drawString(font, "从剪贴板读取：", px + 8, py + 68, 0xFF8C8CA0, false);
+            g.drawString(font, WbLang.s("create.label.read_clipboard"), px + 8, py + 68, 0xFF8C8CA0, false);
             g.drawString(font, clipText(pasteMsg, pw - 16), px + 8, py + 79,
                     pasted == null ? 0xFFE05252 : 0xFF4FD16A, false);
         } else {
-            g.drawString(font, clipText("将从「" + sourceId + "」复制，品阶数值沿用原词条", pw - 16),
+            g.drawString(font, clipText(WbLang.s("create.copy_from", String.valueOf(sourceId)), pw - 16),
                     px + 8, py + 79, 0xFF8C8CA0, false);
         }
 
         if ("attribute".equals(mode) || "mob_effect".equals(mode)) {
-            g.drawString(font, "数值 保底 / 档数 / 每档加", px + 8, py + 119, 0xFF8C8CA0, false);
+            g.drawString(font, WbLang.s("create.values_label"), px + 8, py + 119, 0xFF8C8CA0, false);
         }
 
         chips.clear();
         if ("paste".equals(mode)) {
-            g.drawString(font, "品阶、部位、数值都以 JSON 里的内容为准", px + 8, py + 153, 0xFF9B6CFF, false);
-            g.drawString(font, "（values 决定品阶，types 决定部位）", px + 8, py + 167, 0xFF8C8CA0, false);
+            g.drawString(font, WbLang.s("create.paste.1"), px + 8, py + 153, 0xFF9B6CFF, false);
+            g.drawString(font, WbLang.s("create.paste.2"), px + 8, py + 167, 0xFF8C8CA0, false);
         } else {
-            g.drawString(font, "品阶", px + 8, py + 153, 0xFF9B6CFF, false);
+            g.drawString(font, WbLang.s("create.label.rarity"), px + 8, py + 153, 0xFF9B6CFF, false);
             drawRarityChips(g);
         }
 
         if (!"paste".equals(mode)) {
-            g.drawString(font, "适用部位（逗号分隔：sword/helmet/chestplate/bow…）", px + 8, py + 198, 0xFF8C8CA0, false);
+            g.drawString(font, WbLang.s("create.label.cats"), px + 8, py + 198, 0xFF8C8CA0, false);
         }
 
         super.render(g, mouseX, mouseY, partial);
@@ -431,9 +437,9 @@ public class CreateAffixScreen extends Screen {
             }
             chips.add(new Chip(cx, cy, w, 14, r.key(), on));
             setTip(cx, cy, w, 14, List.of(
-                    Component.literal("§f品阶 " + WbNames.rarityWithEn(r) + (on ? " §a（已选）" : " §8（未选）")),
-                    Component.literal("§7勾选的品阶都会写入词条的 values"),
-                    Component.literal("§8取消勾选 = 这个词阶不会出这条词条")));
+                    WbLang.tr(on ? "create.chip.on" : "create.chip.off", WbNames.rarityWithEn(r)),
+                    WbLang.tr("create.chip.1"),
+                    WbLang.tr("create.chip.2")));
             cx += w + 3;
         }
     }
@@ -464,63 +470,56 @@ public class CreateAffixScreen extends Screen {
         }
     }
 
-    private static Component t(String s) {
-        return Component.literal(s);
+    /** tooltip 文案：查表得到当前语言的纯文本 */
+    private static Component k(String shortKey, Object... args) {
+        return Component.literal(WbLang.s(shortKey, args));
     }
 
     private void collectTips() {
         setTipWidget(editId, List.of(
-                t("§f词条 ID"),
-                t("§7格式：命名空间:路径，例如 apoth_workbench:custom/my_affix"),
-                t("§8只能用 小写字母 / 数字 / _ - / ."),
-                t("§f为什么自建词条显示英文"),
-                t("§7词条名字/描述在客户端语言文件里，数据包写不进去"),
-                t("§7物品上会显示 affix.<词条ID>，可以用 KubeJS 补："),
-                t("§8ClientEvents.lang('zh_cn', event => {"),
-                t("§8  event.add('affix.<词条ID>', '名字')"),
-                t("§8  event.add('affix.<词条ID>.suffix', '· 后缀')"),
-                t("§8})")));
-        setTipWidget(btnModeCopy, List.of(t("§f复制模板"), t("§7完整复制选中词条，只换 ID"),
-                t("§8品阶、部位、数值都沿用原词条")));
-        setTipWidget(btnModeAttr, List.of(t("§f属性模板"), t("§7从零建一条属性词条"),
-                t("§7需要填属性 ID、运算方式、数值、部位")));
-        setTipWidget(btnModePotion, List.of(t("§f药水模板"), t("§7从零建一条药水效果词条"),
-                t("§7需要填效果 ID、触发时机、数值、部位")));
-        setTipWidget(btnModePaste, List.of(t("§f粘贴 JSON"),
-                t("§7从剪贴板读一条完整词条 JSON 来新建"),
-                t("§7做顺劈/庆典/处决这类 special 词条就靠它"),
-                t("§8JSON 必须含 type 字段，创建前会校验")));
-        setTipWidget(btnPick, List.of(t("§f从列表里选"),
-                t("§7列出游戏里所有已注册的属性 / 效果"),
-                t("§7可以搜中文名，也能搜英文 id"),
-                t("§8点一项就填进左边的框")));
+                k("tip.create.id.1"),
+                k("tip.create.id.2"),
+                k("tip.create.id.3"),
+                k("tip.create.id.4"),
+                k("tip.create.id.5"),
+                k("tip.create.id.6"),
+                k("tip.create.id.7"),
+                k("tip.create.id.8"),
+                k("tip.create.id.9"),
+                k("tip.create.id.10")));
+        setTipWidget(btnModeCopy, List.of(k("tip.create.copy.1"), k("tip.create.copy.2"), k("tip.create.copy.3")));
+        setTipWidget(btnModeAttr, List.of(k("tip.create.attr.1"), k("tip.create.attr.2"), k("tip.create.attr.3")));
+        setTipWidget(btnModePotion, List.of(k("tip.create.potion.1"), k("tip.create.potion.2"), k("tip.create.potion.3")));
+        setTipWidget(btnModePaste, List.of(k("tip.create.paste.1"), k("tip.create.paste.2"),
+                k("tip.create.paste.3"), k("tip.create.paste.4")));
+        setTipWidget(btnPick, List.of(k("tip.create.pick.1"), k("tip.create.pick.2"),
+                k("tip.create.pick.3"), k("tip.create.pick.4")));
         setTipWidget(editName, List.of(
-                t("§f名称"),
-                t("§7物品上直接显示的名字，例如「霜冻」"),
-                t("§7新建后立即生效（会注入客户端语言表）"),
-                t("§8留空 = 显示 affix.<词条ID>")));
+                k("tip.create.name.1"),
+                k("tip.create.name.2"),
+                k("tip.create.name.3"),
+                k("tip.create.name.4")));
         setTipWidget(editParam, List.of(
-                t("§f" + ("mob_effect".equals(mode) ? "效果 ID" : "属性 ID")),
-                t("§7例如 " + ("mob_effect".equals(mode) ? "minecraft:speed" : "minecraft:generic.max_health")),
-                t("§8必须是游戏里已注册的 ID")));
+                k("mob_effect".equals(mode) ? "tip.create.param_effect" : "tip.create.param_attr"),
+                k("tip.create.param_example",
+                        "mob_effect".equals(mode) ? "minecraft:speed" : "minecraft:generic.max_health"),
+                k("tip.create.param.3")));
         setTipWidget(btnCycle, "attribute".equals(mode)
-                ? List.of(t("§f运算方式"), t("§7ADDITION 加算 / MULTIPLY_BASE 乘基础 / MULTIPLY_TOTAL 乘总"))
-                : List.of(t("§f触发时机"), t("§7HURT_SELF 自己受伤时 / HURT_ATTACKER 打人时")));
-        setTipWidget(fMin, List.of(t("§f保底数值"), t("§7这件装备最差也有这么多")));
-        setTipWidget(fSteps, List.of(t("§f分成几档"), t("§7档数越多差距越小"), t("§c不能填 0")));
-        setTipWidget(fStep, List.of(t("§f每档加多少"),
-                t("§8最好 = 保底 + 档数 × 每档加")));
+                ? List.of(k("tip.create.cycle.op.1"), k("tip.create.cycle.op.2"))
+                : List.of(k("tip.create.cycle.target.1"), k("tip.create.cycle.target.2")));
+        setTipWidget(fMin, List.of(k("tip.create.min.1"), k("tip.create.min.2")));
+        setTipWidget(fSteps, List.of(k("tip.create.steps.1"), k("tip.create.steps.2"), k("tip.create.steps.3")));
+        setTipWidget(fStep, List.of(k("tip.create.step.1"), k("tip.create.step.2")));
         setTipWidget(editCats, List.of(
-                t("§f适用部位"),
-                t("§7英文 id，逗号分隔；留空 = 所有部位"),
-                t("§7共 " + availableCats.size() + " 个可选，点右边「选…」直接挑")));
+                k("tip.create.cats.1"),
+                k("tip.create.cats.2"),
+                k("tip.create.cats.3", availableCats.size())));
         setTipWidget(btnPickCats, List.of(
-                t("§f挑选适用部位"),
-                t("§7列出神化当前支持的全部部位（" + availableCats.size() + " 个）"),
-                t("§7点一项勾选/取消，多选后点确定")));
-        setTipWidget(btnCreate, List.of(t("§f创建"), t("§7生成新词条并写入工作台数据"),
-                t("§8回主界面后记得点「保存并重载」")));
-        setTipWidget(btnCancel, List.of(t("§f取消"), t("§8返回工作台，不创建")));
+                k("tip.create.pickcats.1"),
+                k("tip.create.pickcats.2", availableCats.size()),
+                k("tip.create.pickcats.3")));
+        setTipWidget(btnCreate, List.of(k("tip.create.create.1"), k("tip.create.create.2"), k("tip.create.create.3")));
+        setTipWidget(btnCancel, List.of(k("tip.create.cancel.1"), k("tip.create.cancel.2")));
     }
 
     @Override

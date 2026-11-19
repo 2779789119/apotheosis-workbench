@@ -1,5 +1,6 @@
 package cn.blockforge.apothworkbench.client;
 
+import cn.blockforge.apothworkbench.WbLang;
 import cn.blockforge.apothworkbench.data.RarityInfo;
 import net.minecraft.network.chat.Component;
 
@@ -88,7 +89,11 @@ public final class WbNames {
         }
         String s = Component.translatable(key).getString();
         if (s.equals(key)) {
-            s = RARITY_FALLBACK.getOrDefault(r.shortId(), r.shortId());
+            String mine = "apoth_workbench.rarity." + r.shortId();
+            s = WbLang.s(mine);
+            if (s.equals(mine)) {
+                s = RARITY_FALLBACK.getOrDefault(r.shortId(), r.shortId());
+            }
         }
         rarityCache.put(key, s);
         return s;
@@ -103,9 +108,9 @@ public final class WbNames {
         return cn.equals(r.shortId()) ? cn : cn + " (" + r.shortId() + ")";
     }
 
-    /** 词条类型中文名 */
+    /** 词条类型显示名 */
     public static String type(String typeShort) {
-        return TYPE_CN.getOrDefault(typeShort, typeShort);
+        return WbLang.opt("apoth_workbench.type." + typeShort, TYPE_CN.getOrDefault(typeShort, typeShort));
     }
 
     public static String typeWithEn(String typeShort) {
@@ -136,6 +141,13 @@ public final class WbNames {
             if (!s.equals(key)) {
                 result = s;
                 break;
+            }
+        }
+        if (result == null) {
+            String mine = "apoth_workbench.cat." + name;
+            String s = WbLang.s(mine);
+            if (!s.equals(mine)) {
+                result = s;
             }
         }
         if (result == null) {

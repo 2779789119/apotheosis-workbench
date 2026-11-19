@@ -1,5 +1,6 @@
 package cn.blockforge.apothworkbench.client;
 
+import cn.blockforge.apothworkbench.WbLang;
 import cn.blockforge.apothworkbench.net.AffixDto;
 import cn.blockforge.apothworkbench.net.DescPacket;
 import cn.blockforge.apothworkbench.net.JsonPacket;
@@ -54,13 +55,15 @@ public final class ClientBridge {
         Minecraft mc = Minecraft.getInstance();
         if (packet.json.isEmpty()) {
             if (mc.player != null) {
-                mc.player.displayClientMessage(Component.literal("§c[工作台] 取不到这条词条的 JSON"), false);
+                mc.player.displayClientMessage(WbLang.tr("apoth_workbench.chat.error",
+                        WbLang.tr("apoth_workbench.msg.json_failed")), false);
             }
             return;
         }
         mc.keyboardHandler.setClipboard(packet.json);
         if (mc.player != null) {
-            mc.player.displayClientMessage(Component.literal("§a[工作台] 已复制 " + packet.id + " 的 JSON 到剪贴板"), false);
+            mc.player.displayClientMessage(WbLang.tr("apoth_workbench.chat.info",
+                    WbLang.tr("apoth_workbench.msg.json_copied", packet.id)), false);
         }
     }
 }
