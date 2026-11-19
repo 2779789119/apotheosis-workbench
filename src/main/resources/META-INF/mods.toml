@@ -1,0 +1,47 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="apoth_workbench"
+version="1.3.3"
+displayName="Apotheosis Workbench / 神化工作台"
+authors="Blockforge"
+credits="Built for Apotheosis by Shadows of Fire. Not affiliated with the Apotheosis team."
+logoFile="logo.png"
+description='''
+An in-game workbench for Apotheosis affixes: browse every affix, create custom ones, delete or disable
+built-in ones, and pick which rarities each affix belongs to. Every edit is written to a per-world datapack
+and can be reverted at any time.
+
+一个面向神化（Apotheosis）词条的管理工作台：在游戏内直接浏览、添加、删除、禁用词条，
+并调整每条词条所处的品阶（稀有度）。所有修改都会写入存档的数据包并可一键回滚。
+'''
+
+[[dependencies.apoth_workbench]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.apoth_workbench]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.apoth_workbench]]
+    modId="apotheosis"
+    mandatory=true
+    versionRange="[7.0.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.apoth_workbench]]
+    modId="placebo"
+    mandatory=true
+    versionRange="[8.0.0,)"
+    ordering="AFTER"
+    side="BOTH"

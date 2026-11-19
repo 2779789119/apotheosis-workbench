@@ -1,0 +1,30 @@
+# Gradle
+.gradle/
+build/
+run/
+out/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.eclipse/
+.settings/
+.classpath
+.project
+bin/
+
+# 本地产物
+generated-images/
+.tools/
+.inspect/
+
+# 第三方依赖 jar（版权原因不入库，见 libs/README.md）
+libs/*.jar
+/Apotheosis-*.jar
+/Placebo-*.jar
+
+# 系统
+.DS_Store
+Thumbs.db
